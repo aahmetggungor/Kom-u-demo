@@ -257,6 +257,12 @@ def test_semantic_revision_tenant_and_time_isolation(pg):
         assert result[0]["semantic_similarity"] == pytest.approx(1)
         assert result[0]["distance_m"] == pytest.approx(0)
         assert result[0]["human_review_required"] is True
+        assert set(result[0]["signals"]) == {"semantic", "location", "time", "address", "needs"}
+        assert result[0]["location_basis"] == "REPORTED_OR_MIXED"
+        assert result[0]["recommendation"] in {
+            "REVIEW_CANDIDATE",
+            "INSUFFICIENT_OR_CONFLICTING_EVIDENCE",
+        }
         assert similar_cases(session, actor["tenant_id"], source["case_id"], "test-v2") == []
     with TestClient(create_app(Settings(embedding_revision="test-v1"), engine)) as enabled:
         response = enabled.get(f"/api/v1/cases/{source['case_id']}/similar", headers=headers(actor))

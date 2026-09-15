@@ -1,7 +1,14 @@
 import json
 
 import pytest
-from komsu.ai import BaselineAnalyzer, LocalBgeM3, duplicate_evidence, normalize
+from komsu.ai import (
+    BaselineAnalyzer,
+    LocalBgeM3,
+    address_evidence,
+    duplicate_evidence,
+    multi_signal_duplicate_evidence,
+    normalize,
+)
 
 
 @pytest.mark.parametrize(
@@ -64,3 +71,51 @@ def test_embedding_weight_digest_checked_before_model_import(tmp_path):
     )
     with pytest.raises(ValueError, match="SHA-256"):
         LocalBgeM3(str(tmp_path))
+
+
+def test_multi_signal_duplicate_is_explainable_and_never_an_action():
+    evidence = multi_signal_duplicate_evidence(
+        0.82,
+        12,
+        300,
+        "Karanfil Sokak No 8",
+        "Karanfil Sokak No 8",
+        ["rescue", "medical"],
+        ["rescue"],
+        "BOTH_CONFIRMED",
+    )
+    assert evidence.propose_merge
+    assert evidence.reason == "REVIEW_CANDIDATE"
+    assert dict(evidence.contributions).keys() == {
+        "semantic",
+        "location",
+        "time",
+        "address",
+        "needs",
+    }
+    assert evidence.address_identity == "EXACT_ADDRESS_TEXT"
+
+
+def test_building_number_conflict_blocks_high_semantic_candidate():
+    score, identity, blockers = address_evidence("Karanfil Sokak No 8", "Karanfil Sokak No 18")
+    assert score == 0 and identity == "CONFLICTING_BUILDING_NUMBER"
+    assert blockers == ("ADDRESS_NUMBER_CONFLICT",)
+    evidence = multi_signal_duplicate_evidence(
+        1.0,
+        4,
+        30,
+        "Karanfil Sokak No 8",
+        "Karanfil Sokak No 18",
+        ["rescue"],
+        ["rescue"],
+        "REPORTED_OR_MIXED",
+    )
+    assert not evidence.propose_merge
+    assert "ADDRESS_NUMBER_CONFLICT" in evidence.blockers
+
+
+def test_missing_location_and_address_do_not_form_strong_candidate():
+    evidence = multi_signal_duplicate_evidence(
+        1.0, None, 1, None, None, ["rescue"], ["rescue"], "MISSING"
+    )
+    assert not evidence.propose_merge

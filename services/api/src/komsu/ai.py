@@ -392,6 +392,123 @@ class DuplicateEvidence:
     entity_similarity: float
     propose_merge: bool
     reason: str
+    needs_similarity: float = 0.0
+    contributions: tuple[tuple[str, float], ...] = ()
+    blockers: tuple[str, ...] = ()
+    address_identity: str = "NOT_AVAILABLE"
+    location_basis: str = "MISSING"
+
+
+ADDRESS_STOPWORDS = {
+    "at",
+    "street",
+    "road",
+    "avenue",
+    "sokak",
+    "sokagi",
+    "cadde",
+    "caddesi",
+    "mahalle",
+    "mahallesi",
+    "οδοσ",
+    "οδου",
+    "στο",
+    "στην",
+    "synthetic",
+    "training",
+    "not",
+    "real",
+    "address",
+}
+
+
+def address_evidence(left: str | None, right: str | None) -> tuple[float, str, tuple[str, ...]]:
+    """Compare explicit address markers without claiming verified building identity."""
+    if not left or not right:
+        return 0.0, "NOT_AVAILABLE", ()
+    a, b = folded(left), folded(right)
+    numbers_a, numbers_b = set(re.findall(r"\d+", a)), set(re.findall(r"\d+", b))
+    tokens_a = {token for token in re.findall(r"[a-zα-ω0-9]+", a) if token not in ADDRESS_STOPWORDS}
+    tokens_b = {token for token in re.findall(r"[a-zα-ω0-9]+", b) if token not in ADDRESS_STOPWORDS}
+    named_a, named_b = tokens_a - numbers_a, tokens_b - numbers_b
+    named_union = named_a | named_b
+    named_score = len(named_a & named_b) / len(named_union) if named_union else 0.0
+    if numbers_a and numbers_b and numbers_a.isdisjoint(numbers_b) and named_score >= 0.25:
+        return 0.0, "CONFLICTING_BUILDING_NUMBER", ("ADDRESS_NUMBER_CONFLICT",)
+    number_score = 1.0 if numbers_a and numbers_b and numbers_a == numbers_b else 0.0
+    score = 0.65 * number_score + 0.35 * named_score
+    if a == b:
+        return 1.0, "EXACT_ADDRESS_TEXT", ()
+    if number_score and named_score:
+        return score, "MATCHING_ADDRESS_MARKERS", ()
+    return score, "WEAK_OR_PARTIAL_ADDRESS", ()
+
+
+def multi_signal_duplicate_evidence(
+    semantic: float,
+    distance_m: float | None,
+    time_delta_seconds: float,
+    source_address: str | None,
+    candidate_address: str | None,
+    source_needs: list[str] | tuple[str, ...],
+    candidate_needs: list[str] | tuple[str, ...],
+    location_basis: str,
+) -> DuplicateEvidence:
+    if not math.isfinite(semantic) or not -1 <= semantic <= 1:
+        raise ValueError("invalid cosine score")
+    if not math.isfinite(time_delta_seconds) or (
+        distance_m is not None and (not math.isfinite(distance_m) or distance_m < 0)
+    ):
+        raise ValueError("invalid metadata")
+    if location_basis not in {"BOTH_CONFIRMED", "REPORTED_OR_MIXED", "MISSING"}:
+        raise ValueError("invalid location basis")
+    semantic_score = max(0.0, semantic)
+    location_quality = {"BOTH_CONFIRMED": 1.0, "REPORTED_OR_MIXED": 0.65, "MISSING": 0.0}[
+        location_basis
+    ]
+    location_score = (
+        math.exp(-distance_m / 100) * location_quality if distance_m is not None else 0.0
+    )
+    time_score = math.exp(-abs(time_delta_seconds) / 7200)
+    address_score, address_identity, address_blockers = address_evidence(
+        source_address, candidate_address
+    )
+    needs_a, needs_b = set(source_needs), set(candidate_needs)
+    needs_score = (
+        len(needs_a & needs_b) / len(needs_a | needs_b) if needs_a and needs_b else 0.0
+    )
+    contributions = (
+        ("semantic", 0.25 * semantic_score),
+        ("location", 0.25 * location_score),
+        ("time", 0.15 * time_score),
+        ("address", 0.25 * address_score),
+        ("needs", 0.10 * needs_score),
+    )
+    score = sum(value for _, value in contributions)
+    blockers = list(address_blockers)
+    if distance_m is not None and distance_m > 500:
+        blockers.append("LOCATION_TOO_FAR")
+    if abs(time_delta_seconds) > 86400:
+        blockers.append("TIME_WINDOW_EXCEEDED")
+    # A suggestion needs one strong place signal. It is still only a review candidate.
+    place_supported = address_score >= 0.75 or (
+        distance_m is not None and distance_m <= 50 and location_quality > 0
+    )
+    suggest = score >= 0.68 and place_supported and not blockers
+    return DuplicateEvidence(
+        score=score,
+        semantic_similarity=semantic_score,
+        location_similarity=location_score,
+        time_similarity=time_score,
+        entity_similarity=address_score,
+        propose_merge=suggest,
+        reason="REVIEW_CANDIDATE" if suggest else "INSUFFICIENT_OR_CONFLICTING_EVIDENCE",
+        needs_similarity=needs_score,
+        contributions=contributions,
+        blockers=tuple(blockers),
+        address_identity=address_identity,
+        location_basis=location_basis,
+    )
 
 
 def duplicate_evidence(

@@ -6,8 +6,8 @@ Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabi
 
 ## Güncel başlangıç noktası
 
-- Kontrollü sunum demosu: yaklaşık `%91`.
-- Uzun gereksinim kapsamı: yaklaşık `%64`.
+- Kontrollü sunum demosu: yaklaşık `%92`.
+- Uzun gereksinim kapsamı: yaklaşık `%66`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
 - Bilinen kalite sınırları: deployed sınıflandırma holdout ihtiyaç recall `0.267`, semantic recall@1 `0.0`, anadili değerlendirmesi olmayan çeviri ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
@@ -58,6 +58,8 @@ Komşu reposunda translation adapter, provenance ve diagnostic sonuçlarını ok
 ```
 
 ## Prompt 6 — Çok sinyalli duplicate önerileri
+
+Durum: **COMPLETED (2026-09-16)** — runtime semantik/konum-zaman/adres/ihtiyaç katkıları ve açık blocker'lar üretir; web paneli her sinyali gösterir ve otomatik merge yoktur. Olay bazında ayrılmış 60 development/60 test sentetik değerlendirmesi tüm dillerde 1.0 çıktı, ancak açık bina numaraları ve kusursuz fixture koordinatları nedeniyle eşik terfi ettirilmedi.
 
 ```text
 Komşu reposunda semantic değerlendirmeleri, merge/split akışını ve bge-m3 kodunu oku. Yalnız duplicate aday üretimini iyileştir. Metin benzerliğini zaman, doğrulanmış/aday konum mesafesi, adres varlıkları, bina/landmark ve ihtiyaç uyumu ile açıklanabilir bir skorda birleştir. Aynı şablon-farklı olay ve farklı bina karşı örneklerini özellikle koru. Otomatik merge yapma; yalnız gerekçeli öneri üret ve her sinyalin katkısını web panelinde göster. Eşik kalibrasyonunu bağımsız development/test bölümüyle ölç; dil bazlı precision/recall ve yanlış birleştirme oranını raporla. PostgreSQL pgvector, tenant, zaman penceresi, eksik konum ve yeniden gruplama testlerini çalıştır. Belgeleri güncelle, commit oluştur ve gerçek olay etiketlerine kalan ihtiyacı yaz.
