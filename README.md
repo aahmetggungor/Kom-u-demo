@@ -92,6 +92,7 @@ Compose worker profili için `.env` içine `KOMSU_WORKER_TENANT` ekleyin ve `doc
 | KOMSU_WORKER_TENANT | Worker'ın işleyeceği kurum |
 | KOMSU_TRANSLATION_MODEL_DIR | İsteğe bağlı, doğrulanmış yerel OPUS-MT paket kökü; ör. `models/opus-mt` |
 | KOMSU_WHISPER_MODEL_DIR | İsteğe bağlı, doğrulanmış yerel Whisper paket kökü; yoksa iş açık `MODEL_UNAVAILABLE` sonucu üretir |
+| KOMSU_MAP_PACKAGE_MANIFEST | İsteğe bağlı, checksum ile doğrulanan yerel MapLibre paket manifesti; yoksa altlıksız çalışma alanı kullanılır |
 | KOMSU_WORKER_METRICS_PORT | İsteğe bağlı localhost Prometheus worker portu; ör. `9101` |
 
 `.env`, `.env.session.json`, model ağırlıkları, veritabanı dosyaları ve build cache'leri commit edilmez. Compose parolalarını döndürmek yalnız `.env` değiştirmekle mevcut DB rolünü güncellemez; ayrı yönetici rotasyonu gerekir.
@@ -108,7 +109,7 @@ OpenAPI: `/openapi.json`, geliştirici dokümanı `/docs`. Versioned domain `/ap
 - `POST /reports/{id}/audio/transcript/review`: yalnız admin/koordinatör; model metnini değiştirmeden ayrı, versioned insan düzeltmesi ve gerekçesi saklar.
 - `POST /cases/{id}/review`: explicit expected_version, reason, verification, priority, koordinat ve onay.
 - `POST /cases/{id}/dispatch`: expected_version ve team_id; verified + confirmed location + coordinator/admin. Çakışma 409.
-- `GET/POST /teams`; `GET /map/layers`; `GET /auth/me`.
+- `GET/POST /teams`; `GET /map/layers`; `GET /map/package`; `GET /auth/me`.
 - `GET /events?after=n`: ID tabanlı tekrar okunabilir olaylar. `WS /events/ws`: ilk frame `{token,after}`; URL'ye token koymayın. İçerik IDs/version ile sınırlı, her tur auth yenilenir.
 
 ## Testler
@@ -136,13 +137,13 @@ Sözlükte PDF'nin üç TR/EL/EN ifadesi çevrimdışı bulunur; kayıtlı sözl
 
 ## Harita ve modeller
 
-Halka açık Nominatim afet akışına bağlanmaz; kişisel/confidential veri gönderilmez. Public OSM tiles üzerinden offline paket indirilmez. [Araştırma](docs/research/STACK_AND_AI.md) limitleri ve kaynakları içerir. Şu an MapLibre altlıksız koordinat çalışma alanı olduğunu açıkça belirtir. Kuruma ait lisanslı tile/GIS paketiyle yapılandırma sonraki adımdır.
+Halka açık Nominatim afet akışına bağlanmaz; kişisel/confidential veri gönderilmez. Public OSM tiles üzerinden offline paket indirilmez. [Araştırma](docs/research/STACK_AND_AI.md) limitleri ve kaynakları içerir. MapLibre, doğrulanmış paket yoksa altlıksız koordinat çalışma alanına güvenli biçimde döner. Yerel paket manifesti style checksum'ını, veri sürümünü, lisansı, kaynak güncelleme zamanını ve bayatlama eşiğini taşır; doğrulama başarısızsa altlık açılmaz. Compose içindeki sentetik örneği denemek için `.env` dosyasına `KOMSU_MAP_PACKAGE_MANIFEST=/app/data/map-package.synthetic/manifest.json` ekleyip API'yi yeniden oluşturun. Bu örnek gerçek tile veya belediye doğrulaması değildir. Kurumsal paket sözleşmesi [onboarding belgesinde](docs/operations/MAP_GIS_ONBOARDING.md), sentetik kanıt ve sınırlar [değerlendirmede](docs/evaluation/MAP_GIS.md) açıklanır.
 
 Model adapter'ları local-only ağırlık yükler; gizli download veya vendor API yoktur. Baseline konum uydurmaz. Çeviri paketi yapılandırılmadığında çeviri `UNAVAILABLE` kalır; yapılandırıldığında model sürümü/yol/pivot, koruma kategorileri ve geri kazanım uyarıları kaydedilir. Eksik kritik değerler model cümlesine gizlenmeden `⟦…⟧` olarak görünür; özgün metin hemen üstte kalır. Sentetik fixture doğruluğu gerçek afet doğruluğu değildir.
 
 İsteğe bağlı `KOMSU_GEOCODER_URL`, kurumun Nominatim-uyumlu HTTPS adresini worker'a verir; varsayılan kapalıdır. Public OpenStreetMap Nominatim reddedilir. Adapter timeout, bounded retry/backoff, hız sınırı, tenant ayrımlı bir saatlik cache, circuit breaker ve 64 KiB/five-candidate şema sınırı uygular; yalnız açık adres alanı ve dil gönderilir. Aday seçimi web formunu doldurur, onay veya sevk yapmaz. Canlı sağlayıcı bu geliştirme ortamında denenmedi; [kurum onboarding gereksinimleri](docs/operations/GEOCODER_ONBOARDING.md) ve [sentetik contract kanıtı](docs/evaluation/GEOCODER.md) ayrıdır.
 
-Admin `POST /api/v1/map/layers` ile `kind`, `name`, `provenance` ve sınırlı `geojson` FeatureCollection yükleyebilir. İlk sürüm Point/LineString, en fazla 200 feature/1000 koordinat ve 32 KiB istek kabul eder; uzaktan URL veya ikon yüklemez. Katmanlar haritada açılıp kapanır, kaynak ve yükleme zamanı görünür. `python scripts/seed_gis_demo.py` yalnız sentetik örnekleri yerel demo kurumuna ekler; gerçek tesis/yol bilgisi değildir.
+Admin `POST /api/v1/map/layers` ile `kind`, `name`, `provenance`, veri sürümü, lisans, kaynak zamanı, bayatlama eşiği, kanonik içerik checksum'ı ve sınırlı `geojson` FeatureCollection yükleyebilir. Point/MultiPoint, LineString/MultiLineString ve Polygon/MultiPolygon kabul edilir; en fazla 200 feature/5000 koordinat, kapalı polygon halkaları ve katman türüne uygun geometri zorunludur. Katmanlar haritada açılıp kapanır; kaynak, sürüm, lisans ve güncellik görünür. `python scripts/seed_gis_demo.py` yalnız sentetik örnekleri yerel demo kurumuna ekler; gerçek tesis/yol bilgisi değildir.
 
 Web derlemesi için MapLibre 6 worker'ı `?worker&url` ile paketlenir; yalnız `?url` üretim paketinde gerekli bağımlılığı eksik bırakır. [Resmî MapLibre kurulum belgesi](https://maplibre.org/maplibre-gl-js/docs/#installation), erişim 2026-09-14. `npm exec vite preview -- --host 127.0.0.1 --port 5173` ile derlenmiş paketi yerel API karşısında inceleyebilirsiniz.
 
@@ -170,7 +171,7 @@ Projenin açık çekirdek lisansı hak sahipleri tarafından kesinleştirilmelid
 
 Migration `0002_case_merge` uygulanmalıdır. Birleştirme/ayırma API ve web paneli gerekçe, mevcut vaka sürümleri ve koordinatör/admin rolü ister. Özgün raporlar korunur; yeniden gruplama konum/öncelik doğrulamasını sıfırlar. `POST /api/v1/cases/{id}/merge` ve `/split` otomatik model kararı değildir.
 
-Migration `0003` ve `0004`, iki ayrı yönetici onaylı saklama planları ile süreli yasal bekletmeleri ekler. Migration `0005`, tenant RLS korumalı şifreli ses karantinasını; `0006` tarama/karar durum makinesini; `0007` ve `0008` kalıcı transcript kuyruğu, insan düzeltmesi ve kaynak provenance alanlarını ekler. API planı ses sayısını da önizler; kalıcı yürütme eşleşen ses ciphertext'iyle bağlı transcript'i aynı işlemde siler. Kalıcı redaksiyon yalnız yönetici CLI komutuyla ve plan UUID'si tekrar girilerek çalışır. Gerçek veri öncesi hukuk onayı şarttır.
+Migration `0003` ve `0004`, iki ayrı yönetici onaylı saklama planları ile süreli yasal bekletmeleri ekler. Migration `0005`, tenant RLS korumalı şifreli ses karantinasını; `0006` tarama/karar durum makinesini; `0007` ve `0008` kalıcı transcript kuyruğu, insan düzeltmesi ve kaynak provenance alanlarını; `0009` GIS sürüm/lisans/checksum/güncellik metadata'sını ekler. API planı ses sayısını da önizler; kalıcı yürütme eşleşen ses ciphertext'iyle bağlı transcript'i aynı işlemde siler. Kalıcı redaksiyon yalnız yönetici CLI komutuyla ve plan UUID'si tekrar girilerek çalışır. Gerçek veri öncesi hukuk onayı şarttır.
 
 bge-m3 için API ortamından ayrı Python 3.12 ortamı kullanın. Aşağıdaki komutları depo kökünde, bu ortamın Python'u ile çalıştırın:
 

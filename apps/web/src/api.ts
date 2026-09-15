@@ -6,7 +6,8 @@ export type Transcript = {id:string;state:'QUEUED'|'RUNNING'|'DONE'|'FAILED';att
 export type Report = {id: string; source: string; original_text: string; original_language: string; address_raw: string | null; processing_status: string; audio:AudioMetadata|null;transcript:Transcript|null;analysis: {translated_text?: Record<string,string>; translation_provenance?:Record<string,TranslationProvenance>;warnings?: string[]; pipeline_version?: string;location_candidates?:LocationCandidate[]}};
 export type Detail = Case & {reports: Report[]};
 export type Team = {id: string; name: string};
-export type MapLayer = {id:string;kind:string;name:string;provenance:string;updated_at:string;geojson:Exclude<import('maplibre-gl').GeoJSONSourceSpecification['data'],string>};
+export type MapLayer = {id:string;kind:string;name:string;provenance:string;dataset_version:string;license_name:string;content_sha256:string;source_updated_at:string;stale_after_days:number;is_stale:boolean;updated_at:string;geojson:Exclude<import('maplibre-gl').GeoJSONSourceSpecification['data'],string>};
+export type MapPackage = {enabled:boolean;reason?:string;package_version?:string;license_name?:string;attribution?:string;updated_at?:string;is_stale?:boolean;style_sha256?:string;style?:import('maplibre-gl').StyleSpecification|null};
 export class ApiError extends Error { constructor(public status: number, message: string) { super(message); } }
 export async function request<T>(token: string, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const response = await fetch('/api/v1' + path, { method: body === undefined ? 'GET' : 'POST', headers: {Authorization: `Bearer ${token}`, ...(body === undefined ? {} : {'Content-Type':'application/json'})}, body: body === undefined ? undefined : JSON.stringify(body), signal });

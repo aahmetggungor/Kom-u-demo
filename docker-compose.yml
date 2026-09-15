@@ -35,6 +35,9 @@ services:
       KOMSU_AUDIO_MASTER_KEY_B64: ${KOMSU_AUDIO_MASTER_KEY_B64:-}
       KOMSU_AUDIO_KEY_ID: ${KOMSU_AUDIO_KEY_ID:-development-audio-v1}
       KOMSU_MAX_AUDIO_BYTES: ${KOMSU_MAX_AUDIO_BYTES:-2000000}
+      KOMSU_MAP_PACKAGE_MANIFEST: ${KOMSU_MAP_PACKAGE_MANIFEST:-}
+    volumes:
+      - ./data/map-package.synthetic:/app/data/map-package.synthetic:ro
     ports: ["127.0.0.1:8000:8000"]
     depends_on:
       migrate: {condition: service_completed_successfully}

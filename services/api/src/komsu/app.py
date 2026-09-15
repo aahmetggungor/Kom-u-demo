@@ -3,7 +3,7 @@ import json
 import logging
 import time
 from collections import defaultdict, deque
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
@@ -202,7 +202,7 @@ def create_app(settings: Settings | None = None, engine=None):
         try:
             with engine.connect() as conn:
                 revision = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            if revision != "0008":
+            if revision != "0009":
                 raise ValueError("migration mismatch")
         except (SQLAlchemyError, ValueError):
             raise HTTPException(503, "Database/schema not ready") from None
@@ -558,12 +558,36 @@ def create_app(settings: Settings | None = None, engine=None):
                     "name": row.name,
                     "geojson": row.geojson,
                     "provenance": row.provenance,
+                    "dataset_version": row.dataset_version,
+                    "license_name": row.license_name,
+                    "content_sha256": row.content_sha256,
+                    "source_updated_at": row.source_updated_at.isoformat(),
+                    "stale_after_days": row.stale_after_days,
+                    "is_stale": datetime.now(UTC)
+                    > (
+                        row.source_updated_at.astimezone(UTC)
+                        if row.source_updated_at.tzinfo
+                        else row.source_updated_at.replace(tzinfo=UTC)
+                    )
+                    + timedelta(days=row.stale_after_days),
                     "updated_at": row.updated_at.isoformat(),
                 }
                 for row in session.scalars(
                     select(MapLayer).where(MapLayer.tenant_id == actor.tenant_id).limit(50)
                 )
             ]
+
+    @app.get("/api/v1/map/package")
+    def map_package(actor: Principal = Depends(principal)):
+        del actor
+        if not settings.map_package_manifest:
+            return {"enabled": False, "reason": "MAP_PACKAGE_NOT_CONFIGURED"}
+        from .map_package import MapPackageUnavailable, load_map_package
+
+        try:
+            return load_map_package(settings.map_package_manifest)
+        except MapPackageUnavailable:
+            return {"enabled": False, "reason": "MAP_PACKAGE_INVALID_OR_UNAVAILABLE"}
 
     def read_events(actor, after):
         with tenant_session(engine, actor.tenant_id) as session:

@@ -8,8 +8,8 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Architecture with context/container/component diagrams; threat model; nine ADRs and official-source research notes.
 - FastAPI ingestion, source preservation, expiring/revocable hashed opaque sessions, role/tenant boundaries, durable jobs, worker lease recovery and claim fencing, conservative TR/EL/EN rules baseline.
 - Human case review and location confirmation; versioned dispatch with team checks and transactional audit/events.
-- PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0008 applied; runtime non-superuser RLS and spatial trigger tested.
-- 100 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-16.
+- PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0009 applied; runtime non-superuser RLS and spatial trigger tested.
+- 104 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-16.
 - React/MapLibre dashboard builds; eleven coordinate/localisation/audio tests pass; npm audit reported zero vulnerabilities at installation.
 - Browser login and live event connection verified; 12 synthetic reports displayed. Expired demo token correctly rejected after session interruption and rotated with unchanged scope.
 - API and migration Docker images build successfully; Compose API and PostgreSQL are healthy. Restart retained synthetic data.
@@ -18,7 +18,7 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Android debug APK, lint, six app unit tests, seven relay/crypto tests and six Room instrumentation tests passed on Pixel 7 / Android 14 emulator. Relay custody and report/audio queues survive database reopen; ECDSA/AES-GCM tampering is rejected; Room v1→v2→v3 preserves queued reports and adds tenant-scoped audio custody; interrupted sync claims remain pending through lease expiry.
 - Browser human review and synthetic dispatch completed; logout and 390px viewport checked without horizontal overflow. Login bundle reduced to 238 kB raw by deferred MapLibre loading.
 - Optional institutional/self-hosted geocoder has timeout, bounded retry/backoff, per-process pacing, tenant-scoped cache, circuit breaker, bounded schema validation and public OSM rejection. A localhost contract server and 12 PII-free TR/EL/EN address/landmark/typo fixtures passed exactly; candidates remain review-only and no live gateway/geocoder is configured.
-- GIS import requires admin and validates bounds/types/feature limits; tenant isolation tested. Production web build visually verified with 12 case points and synthetic hospital/road layers. Fixed MapLibre CSS sizing and bundled the v6 worker with Vite ?worker&url.
+- GIS import requires admin and validates checksums, WGS84 bounds, layer-kind geometry, 200 features/5,000 positions, Polygon/Multi types, version/licence/source date and staleness; tenant isolation is tested. A verified local MapLibre style manifest fails closed on tampering/public tiles and the browser falls back to the blank coordinate workspace. Migration 0009 is applied. Only synthetic layers/style exist.
 - Local HTTP benchmark: 30 reports, 6 clients, all processed; acknowledgement p95 79.783 ms. Small baseline-only burst, not a capacity guarantee.
 - pip-audit requirements scan: no known vulnerabilities; Bandit: no medium/high findings in the current Python source. These are bounded scans, not a security certification.
 - CI workflow and OpenAPI export written. Challenge evaluation exposes 50% need recall on 18 authored examples; interpretation recorded in docs/evaluation/INTERPRETATION.md.
@@ -41,14 +41,14 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Need classification failures are now split by language, class, negation, implicit wording, multiple needs, ambiguity and numbers. Deployed `rules-0.1` scored precision 0.571, recall 0.267 and urgency accuracy 0.389 on a new 36-row authored holdout. A guarded rules candidate scored 1.0 on this same-author synthetic set; a local scikit-learn char-TFIDF/logistic candidate scored precision 0.50, recall 0.333 and urgency accuracy 0.389. Runtime remains `rules-0.1` because none of this is independent/native-speaker field validation. Every candidate requires human review and cannot dispatch.
 
 - Container scanning completed; vendor-fixed OS issues patched and pip removed from final runtime images. PostgreSQL 17.11 retained all 12 demo reports; the full Python suite passes after the upgrade. Remaining OS/gosu findings are recorded in docs/security/CONTAINER_SCAN.md, not suppressed.
-- Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine, 0006 scan/release state, and 0007/0008 durable transcript jobs/provenance. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Transcript rows cascade with retained audio deletion. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
+- Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine, 0006 scan/release state, 0007/0008 durable transcript jobs/provenance, and 0009 versioned/licensed GIS metadata. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Transcript rows cascade with retained audio deletion. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
 - A 192,131-byte logical backup was restored to a separate local database and migrated from 0002 to 0004; runtime auth, RLS, 12 demo reports/embeddings and semantic retrieval passed. This is same-host restore evidence, not HA/offsite DR.
 
 ## IN PROGRESS
-- Institutional map tiles and municipal GIS package validation. Live integrations remain gated by institution-supplied services and licensed data.
+- Vendor-independent external message channel adapters and contract validation. Live integrations remain gated by provider accounts and credentials.
 
 ## NEXT
-- Institutional map tiles and municipal GIS package validation; Greek/noisy human transcription validation; central monitoring; relay key distribution/radio implementation and physical-device validation.
+- External message channel adapters; Greek/noisy human transcription validation; central monitoring; relay key distribution/radio implementation and physical-device validation.
 
 ## BLOCKERS
 - No hard infrastructure blocker currently. Docker Desktop was started; Windows localhost/IPv6 connection issue avoided using 127.0.0.1 and explicit connection timeout.
@@ -61,9 +61,9 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 
 ## TECHNICAL DEBT
 - Semantic suggestions and human merge/split UI work locally; embeddings support bounded batch and a continuous local polling worker. Translation is optional and disabled by default because raw models omit critical facts and the guarded output lacks bilingual adequacy review. Transcription attachment and human correction work, but the worker needs separately installed model weights/process supervision and there is no real scanner process. Geocoder adapter is optional and fixture-tested; no external provider is active.
-- Web UI has TR/EL/EN controls; rescue wording still requires native-speaker review. Messages retain their original language. Map has point overlay and an explicit unconfigured-base-map notice. Admin GIS import and layer toggles support bounded Point/LineString data with provenance; four synthetic layers loaded.
+- Web UI has TR/EL/EN controls; rescue wording still requires native-speaker review. Messages retain their original language. Map has an explicit unconfigured-package notice and verified style fallback. Admin GIS import and layer toggles support bounded Point/MultiPoint, LineString/MultiLineString and Polygon/MultiPolygon data with version, licence, checksum, provenance and freshness; only synthetic layers are validated.
 - FastAPI test client dependency emits two deprecation warnings; tests still pass. Deferred MapLibre chunk remains about 1.02 MB raw. Android has dependency/deprecation warnings; lint has no errors.
 - Relay policy, authenticated encryption/signature primitives and persistent Room custody are implemented and emulator-tested. No organization key distribution, actual radio transport or physical A→B→C validation is claimed.
 - Per-process in-memory request quota is development-only; shared gateway quotas, OIDC/MFA, offsite restore/HA, backup and device-cache re-purge, legal approval and OTLP exporter are pilot gates.
-- The recorded restore drill ends at migration 0004; a fresh backup/restore drill including 0005–0008 encrypted audio/transcript state remains required.
+- The recorded restore drill ends at migration 0004; a fresh backup/restore drill including 0005–0009 encrypted audio/transcript and GIS metadata state remains required.
 - Demo credentials expire after eight hours; ignored .env.session.json stores the local token. No source-control secrets.

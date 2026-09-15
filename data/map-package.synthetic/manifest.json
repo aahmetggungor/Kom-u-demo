@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "package_version": "synthetic-contract-1",
+  "updated_at": "2026-09-16T00:00:00+03:00",
+  "stale_after_days": 30,
+  "license_name": "Synthetic test fixture; no operational map data",
+  "attribution": "Komşu synthetic fixture",
+  "style_file": "style.json",
+  "style_sha256": "38a8b23d7447d52eab9d6bea02c608fe3d8df885903620d3909c384b83da080f",
+  "allowed_origins": []
+}
+

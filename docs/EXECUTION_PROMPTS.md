@@ -6,8 +6,8 @@ Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabi
 
 ## Güncel başlangıç noktası
 
-- Kontrollü sunum demosu: yaklaşık `%93`.
-- Uzun gereksinim kapsamı: yaklaşık `%68`.
+- Kontrollü sunum demosu: yaklaşık `%94`.
+- Uzun gereksinim kapsamı: yaklaşık `%70`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
 - Bilinen kalite sınırları: deployed sınıflandırma holdout ihtiyaç recall `0.267`, semantic recall@1 `0.0`, anadili değerlendirmesi olmayan çeviri ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
@@ -74,6 +74,8 @@ Komşu reposunda geolocation adapter, güvenlik notları ve harita bileşenlerin
 ```
 
 ## Prompt 8 — Gerçek harita ve belediye GIS paketleri
+
+Durum: **COMPLETED (2026-09-16)** — checksum/lisans/sürüm/güncellik taşıyan GIS importu, Polygon/Multi sınırları, migration 0009, doğrulanmış yerel MapLibre style manifesti ve fail-closed boş harita fallback'i tamamlandı. Yalnız sentetik style/layer kanıtı vardır; lisanslı tile ve belediye dosyaları onboarding dış bağımlılığıdır.
 
 ```text
 Komşu reposunda MapLibre, GIS import ve veri provenance kodunu oku. Yalnız kurumsal harita/GIS paketlemesini geliştir. Lisanslı raster/vector tile veya offline style paketi için yapılandırma, checksum, sürüm, son güncelleme ve devre dışı kalma davranışı ekle. Hastane, toplanma alanı, barınak ve kapalı yol verileri için doğrulama, admin import, güncellik uyarısı ve kaynak gösterimi ekle; Polygon/Multi geometry gereksinimini kontrollü sınırlarla tamamla. Tile servisi yokken vaka listesi ve koordinat çalışma alanı çalışmaya devam etsin. Sentetik fixture ve render/E2E kontrollerini yap; gerçek belediye verisi verilmediyse pilot kanıtı sayma. Belgeleri güncelle, commit oluştur ve gereken kurum dosyalarını listele.

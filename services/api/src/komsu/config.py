@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     requests_per_minute: int = Field(default=120, ge=1)
     queue_limit: int = Field(default=10000, ge=1)
     geocoder_url: str | None = None
+    map_package_manifest: str | None = Field(default=None, max_length=500)
     embedding_revision: str | None = Field(default=None, max_length=160)
     translation_model_dir: str | None = Field(default=None, max_length=500)
     whisper_model_dir: str | None = Field(default=None, max_length=500)

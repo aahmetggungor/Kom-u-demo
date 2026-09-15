@@ -23,7 +23,7 @@ Durum: **BACKLOG** henüz doğrulanmadı, **PARTIAL** sınırlı uygulama, **VER
 | KOMSU-FUNC-007 | s.2 Merge; s.3 | bge-m3 sentence embeddings ile aynı olayı gruplama | Açıklanabilir çok sinyalli insan inceleme adayı; cross-language ve ayrı bina testleri | PARTIAL |
 | KOMSU-FUNC-008 | s.2 Merge | Binlerce tekrar için tek vaka/pin ve rapor sayacı | Tekrarlı veri seti, count ve map API testi | PARTIAL |
 | KOMSU-FUNC-009 | s.2 Share | Ortak canlı harita; kullanıcının dilinde vaka; özgün mesaj tek etkileşimle | Web uçtan uca test | PARTIAL |
-| KOMSU-FUNC-010 | s.2; s.3 | Belediye hastane, toplanma, barınak, kapalı yol katmanları; React/MapLibre | GeoJSON katmanları, kaynak/tarih görünümü | PARTIAL |
+| KOMSU-FUNC-010 | s.2; s.3 | Belediye hastane, toplanma, barınak, kapalı yol katmanları; React/MapLibre | Sürümlü/lisanslı/checksum'lı Polygon/Multi contract ve stale UI; gerçek belediye paketi eksik | PARTIAL |
 | KOMSU-FUNC-011 | s.2 saha; s.3 | Kotlin/Jetpack Compose Android, çevrimdışı metin/ses raporu yazma ve bağlantıda sync | Room v2→v3, process death/reopen, tenant ve yeniden bağlantı testleri; fiziksel cihaz/uçak modu eksik | PARTIAL |
 | KOMSU-FUNC-012 | s.2 saha | TR/EL/EN kurtarma sözlüğü ve kayıtlı sesler | Üç örnek ifade dahil offline açılış ve ses testi | PARTIAL |
 | KOMSU-FUNC-013 | s.2 saha | Bluetooth ve Wi-Fi Direct üzerinden çok atlamalı store-and-forward | Üç fiziksel cihaz A→B→C→sunucu, loop/replay testi | PARTIAL |
@@ -71,20 +71,20 @@ PDF'de daha dar geçen özelliklerin aşağıdaki ayrıntıları PDF'ye atfedilm
 
 Her slice ilgili ID'leri doküman ve test dosyasına bağlar. Eksik model ağırlığı, kayıtlı ses, fiziksel cihaz veya operasyon kanıtı açıkça BLOCKERS/RISKS alanında kalır. Sentetik veriyle iyi sonuç saha başarısının kanıtı değildir. PII içeren özgün raporların korunması retention süresince geçerlidir; silme zamanı geldiğinde türevler, indeksler ve cache de kapsanır.
 
-## Güncel uygulama kanıtı — 2026-09-15
+## Güncel uygulama kanıtı — 2026-09-16
 
 IMPLEMENTED, ilgili geliştirme davranışının kod ve yerel kontrollerle gösterildiğini ifade eder; saha/pilot kabulü değildir. PARTIAL, daha geniş kabul hedefinin eksik kaldığını belirtir.
 
 | Kapsam | Uygulama / kanıt | Açık kalan sınır |
 |---|---|---|
 | Ingestion, tenant/RBAC, dispatch, events | services/api/src/komsu; tests/test_workflow.py, test_postgres.py, test_websocket.py | Harici SMS/telefon sağlayıcısı bağlı değil; ortak quota ve OIDC yok |
-| PostgreSQL/PostGIS/pgvector | migrations 0001–0008, gerçek DB testleri; sağlıklı Compose API/DB; yerel restore ve ileri migration kanıtı; encrypted audio/transcript RLS ve versioned release/review | Uzak/offsite restore ve HA eksik; yerel bge-m3 etkin, merkezi süreç yönetimi eksik |
-| Konum adayları / GIS katmanları | geolocation.py, map_layers.py, tests/test_geolocation_adapters.py, test_map_layers.py; web LocationCandidates/Map | Geocoder fixture ile testli; belediye verisi yok; Point/LineString ile sınırlı |
+| PostgreSQL/PostGIS/pgvector | migrations 0001–0009, gerçek DB testleri; sağlıklı Compose API/DB; yerel restore ve ileri migration kanıtı; encrypted audio/transcript ve GIS metadata | Uzak/offsite restore ve HA eksik; yerel bge-m3 etkin, merkezi süreç yönetimi eksik |
+| Konum adayları / GIS katmanları | geolocation.py, map_layers.py, map_package.py, tests/test_geolocation_adapters.py, test_map_layers.py, test_map_package.py; web LocationCandidates/Map | Geocoder fixture ile testli; Polygon/Multi ve paket fallback sentetik; gerçek belediye/tile verisi yok |
 | Web | Üretim derlemesi; TR/EL/EN panel kataloğu; erişilebilir demo WAV seçme/kayıt, 16 kHz PCM dönüştürme, sessizlik/boyut/MIME ve 401/403/409 testleri; login/WS/harita kanıtı | Tarayıcı mikrofonu gerçek cihaz matrisinde denenmedi; kurtarma dili incelemesi ve altlık paketi eksik |
 | Android offline | Room queue/cache/custody yeniden açma ve v1→v2→v3 migration; tenant-scoped report/audio claim fencing; 30 saniye PCM kayıt/izin kullanıcı akışı; 6 app + 7 relay unit, 6 emülatör testi | Fiziksel mikrofon/uçak modu, kurum anahtarı dağıtımı ve gerçek relay radyo/A→B→C test yok |
 | AI / değerlendirme | 3000 train şablonu, 18 development ve 36 authored holdout sınıflandırma örneği; guarded rules ve char-TFIDF/logistic karşılaştırması; 240 mesaj semantic stress ve 360 mesaj çok sinyalli duplicate split; OPUS-MT; Whisper | Deployed ihtiyaç recall holdout 0.267; semantic recall@1 0.0; çok sinyalli sentetik test 1.0 fakat kolay adres/konum fixture'ı nedeniyle terfi edilmedi; çeviri insan değerlendirmesi bekliyor; Whisper TTS WER 0.3793 |
 | Yük ölçümü | scripts/benchmark_local.py, docs/evaluation/local-benchmark.json: 30 rapor, 6 istemci, tek worker | Küçük yerel burst; sürdürülebilir kapasite/SLO ölçümü değil |
-| Kalite / güvenlik | Toplam 100 Python testi (9 gerçek PG); Python lint, pip-audit ve Bandit; web build/11 test; Android build/lint, 13 unit ve 6 emülatör testi; encrypted audio, sınıflandırma, duplicate, geocoder ve çeviri güvenlik dilimleri | Uzak CI çalışmadı; gerçek scanner, bağımsız etiket/native review, fiziksel mikrofon/saha sesi, hukuk onayı ve pentest eksik |
+| Kalite / güvenlik | Toplam 104 Python testi (9 gerçek PG); Python lint, pip-audit ve Bandit; web build/11 test; Android build/lint, 13 unit ve 6 emülatör testi; audio, sınıflandırma, duplicate, geocoder, GIS/style ve çeviri güvenlik dilimleri | Uzak CI çalışmadı; gerçek scanner, bağımsız etiket/native review, fiziksel mikrofon/saha sesi, hukuk onayı ve pentest eksik |
 | Worker gözlemlenebilirliği | Sabit etiketli sonuç sayacı; analiz/iş/kuyruk bekleme histogramları; depth/oldest gauge; localhost opt-in endpoint; PII'siz JSON completion log | Embedding alt-batch sayaçları PostgreSQL kısmi hata/tekrar testiyle doğrulandı; merkezi scrape/dashboard/alert/OTLP yok |
 | Mimari / hukuk / işletim | docs/architecture, docs/security, docs/adr, docs/research, README, ROADMAP | Retention icrası, hukuk onayı, gerçek kurum pilotu tamamlanmadı |
 

@@ -297,6 +297,11 @@ class MapLayer(Base):
     name: Mapped[str] = mapped_column(String(160))
     geojson: Mapped[dict] = mapped_column(JSON)
     provenance: Mapped[str] = mapped_column(String(500))
+    dataset_version: Mapped[str] = mapped_column(String(120), default="legacy")
+    license_name: Mapped[str] = mapped_column(String(160), default="UNREVIEWED")
+    content_sha256: Mapped[str] = mapped_column(String(64), default="0" * 64)
+    source_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    stale_after_days: Mapped[int] = mapped_column(Integer, default=30)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
