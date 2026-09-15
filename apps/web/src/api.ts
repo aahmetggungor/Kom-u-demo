@@ -19,3 +19,8 @@ export function coordinatePair(lat: string, lon: string, messages={required:'İk
   if (!Number.isFinite(a) || !Number.isFinite(b) || Math.abs(a) > 90 || Math.abs(b) > 180) throw new Error(messages.invalid);
   return {lat:a, lon:b};
 }
+export async function uploadAudio<T>(token:string,reportId:string,audio:Blob):Promise<T>{
+  const response=await fetch(`/api/v1/reports/${reportId}/audio`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'audio/wav'},body:audio});
+  if(!response.ok){const value=await response.json().catch(()=>({}));throw new ApiError(response.status,typeof value.detail==='string'?value.detail:`HTTP ${response.status}`);}
+  return response.json();
+}

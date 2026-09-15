@@ -80,4 +80,29 @@ class QueuePersistenceTest {
             assertEquals(0,db.reports().pendingCount(tenant))
         } finally { db.close();context.deleteDatabase(name) }
     }
+    @Test fun audioQueueSurvivesReopenAndRemainsTenantScoped()=runBlocking {
+        val context=InstrumentationRegistry.getInstrumentation().targetContext
+        val name="audio-queue-${UUID.randomUUID()}.db"
+        val tenant=UUID.randomUUID().toString();val other=UUID.randomUUID().toString()
+        val report=LocalReport(text="Synthetic voice report",language="en",tenantId=tenant)
+        var db=Room.databaseBuilder(context,FieldDatabase::class.java,name).addMigrations(MIGRATION_1_2,MIGRATION_2_3).build()
+        try {
+            db.reports().insert(report)
+            db.audio().insert(LocalAudio(report.localId,tenant,500,16_044))
+            db.close()
+            db=Room.databaseBuilder(context,FieldDatabase::class.java,name).addMigrations(MIGRATION_1_2,MIGRATION_2_3).build()
+            assertEquals(1,db.audio().queued(tenant).size)
+            assertTrue(db.audio().queued(other).isEmpty())
+            assertEquals(1,db.audio().claim(report.localId,tenant,1_000))
+            assertEquals(0,db.audio().claim(report.localId,tenant,2_000))
+            db.close()
+            db=Room.databaseBuilder(context,FieldDatabase::class.java,name).addMigrations(MIGRATION_1_2,MIGRATION_2_3).build()
+            assertEquals(1,db.audio().pendingCount(tenant))
+            db.audio().recover(2_000)
+            assertEquals(1,db.audio().queued(tenant).size)
+            assertEquals(0,db.audio().finish(report.localId,tenant,1_000,"SYNCED",null))
+            assertEquals(1,db.audio().claim(report.localId,tenant,3_000))
+            assertEquals(1,db.audio().finish(report.localId,tenant,3_000,"SYNCED",null))
+        } finally { db.close();context.deleteDatabase(name) }
+    }
 }

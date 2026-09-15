@@ -10,12 +10,12 @@ Updated: 2026-09-15. Controlled development foundation, not production ready.
 - Human case review and location confirmation; versioned dispatch with team checks and transactional audit/events.
 - PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0008 applied; runtime non-superuser RLS and spatial trigger tested.
 - 88 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-15.
-- React/MapLibre dashboard builds; six coordinate/localisation tests pass; npm audit reported zero vulnerabilities at installation.
+- React/MapLibre dashboard builds; eleven coordinate/localisation/audio tests pass; npm audit reported zero vulnerabilities at installation.
 - Browser login and live event connection verified; 12 synthetic reports displayed. Expired demo token correctly rejected after session interruption and rotated with unchanged scope.
 - API and migration Docker images build successfully; Compose API and PostgreSQL are healthy. Restart retained synthetic data.
 - Deterministic corpus: 3000 synthetic reports / 1000 TR-EL-EN event groups; 12 report local demo seeded.
 - Android project, Gradle wrapper, Compose screens, Room schema/queue, WorkManager, encrypted token storage, tenant-scoped cache/queue and relay protocol code written.
-- Android debug APK, lint, four app unit tests, seven relay/crypto tests and four Room instrumentation tests passed on Pixel 7 / Android 14 emulator. Relay custody survives database reopen; ECDSA/AES-GCM tampering is rejected; Room v1→v2 preserves queued reports; interrupted sync claims remain pending through lease expiry.
+- Android debug APK, lint, six app unit tests, seven relay/crypto tests and six Room instrumentation tests passed on Pixel 7 / Android 14 emulator. Relay custody and report/audio queues survive database reopen; ECDSA/AES-GCM tampering is rejected; Room v1→v2→v3 preserves queued reports and adds tenant-scoped audio custody; interrupted sync claims remain pending through lease expiry.
 - Browser human review and synthetic dispatch completed; logout and 390px viewport checked without horizontal overflow. Login bundle reduced to 238 kB raw by deferred MapLibre loading.
 - Optional self-hosted geocoder candidate adapter and review-only candidate UI, channel normalization/HMAC helpers and validated pipeline implemented with fixture tests; no live gateway/geocoder configured.
 - GIS import requires admin and validates bounds/types/feature limits; tenant isolation tested. Production web build visually verified with 12 case points and synthetic hospital/road layers. Fixed MapLibre CSS sizing and bundled the v6 worker with Vite ?worker&url.
@@ -36,16 +36,17 @@ Updated: 2026-09-15. Controlled development foundation, not production ready.
 - Authenticated raw-WAV attachment endpoint enforces MIME, 2 MB, 16 kHz/16-bit/mono, 0.2–30 second and speech-energy bounds before storing. HKDF-separated AES-GCM encryption and keyed replay digest protect one quarantined attachment per report; plaintext/ciphertext never appears in API responses. Tenant RLS, role checks, replay/conflict, tamper failure and retention deletion are tested.
 - Local `AudioScanner` boundary revalidates decrypted WAV in memory and persists fixed clean/malicious/invalid/error codes without exception text. Scan failures remain closed; only clean scan-passed audio can be released, by a different admin/coordinator from the uploader. Versioned decision replay, conflicting PostgreSQL release races, audit/events and tenant isolation are tested. No real malware engine is configured.
 - Released audio creates one durable, tenant-scoped transcription job. The lease-fenced worker decrypts only after claim, calls the local byte-based Whisper adapter, stores source HMAC provenance/model/language/warnings, and records fixed terminal integrity/model-unavailable states without content in logs. Machine text remains separate from versioned admin/coordinator corrections and is visible in the three-language case panel; raw audio is never downloadable. Tests cover release gating, retry, missing model, tampering, correction permissions/idempotency and real PostgreSQL RLS.
+- Android requests microphone access at the point of use and records at most 30 seconds as 16 kHz mono 16-bit PCM WAV, with visible timer, stop, cancel, rerecord and remove controls. Silence/format/size are rejected before private-file/Room persistence. WorkManager uploads the report first and then its audio with fenced tenant-scoped retry; 200 replay is accepted, while auth/conflict/validation remain explicit. The development web form can record/downsample or validate a local WAV and retries the same report/audio IDs. No audio is logged or sent to analytics.
 
 - Container scanning completed; vendor-fixed OS issues patched and pip removed from final runtime images. PostgreSQL 17.11 retained all 12 demo reports; the full Python suite passes after the upgrade. Remaining OS/gosu findings are recorded in docs/security/CONTAINER_SCAN.md, not suppressed.
 - Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine, 0006 scan/release state, and 0007/0008 durable transcript jobs/provenance. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Transcript rows cascade with retained audio deletion. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
 - A 192,131-byte logical backup was restored to a separate local database and migrated from 0002 to 0004; runtime auth, RLS, 12 demo reports/embeddings and semantic retrieval passed. This is same-host restore evidence, not HA/offsite DR.
 
 ## IN PROGRESS
-- Android and development-web short voice recording/upload flow. Model evaluation remains deliberately gated by real multilingual and field data.
+- Need/urgency classifier error analysis and safe quality experiment. Model evaluation remains deliberately gated by real multilingual and field data.
 
 ## NEXT
-- Android/web recording and offline upload; Greek/noisy human transcription validation; live geocoder/municipal data integration; central monitoring; relay key distribution/radio implementation and physical-device validation.
+- Need/urgency classification quality; Greek/noisy human transcription validation; live geocoder/municipal data integration; central monitoring; relay key distribution/radio implementation and physical-device validation.
 
 ## BLOCKERS
 - No hard infrastructure blocker currently. Docker Desktop was started; Windows localhost/IPv6 connection issue avoided using 127.0.0.1 and explicit connection timeout.

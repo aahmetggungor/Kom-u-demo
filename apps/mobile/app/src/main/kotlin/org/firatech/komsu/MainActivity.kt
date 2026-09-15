@@ -1,7 +1,11 @@
 package org.firatech.komsu
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +51,26 @@ fun FieldScreen(app:KomsuApplication) {
     var token by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
+    var capturedAudio by remember { mutableStateOf<CapturedAudio?>(null) }
+    var recordingSeconds by remember { mutableIntStateOf(0) }
+    val recorder=remember { PcmRecorder() }
+    val context=LocalContext.current
+    val permissionLauncher=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if(granted) {
+            try { recorder.start(scope);recordingSeconds=0;message="Ses kaydı başladı. En fazla 30 saniye." }
+            catch(_:Exception) { message="Ses kaydı başlatılamadı." }
+        } else message="Mikrofon izni reddedildi. Metin raporu göndermeye devam edebilirsiniz."
+    }
+    LaunchedEffect(recorder.isRecording,recordingSeconds) {
+        if(recorder.isRecording) {
+            kotlinx.coroutines.delay(1000)
+            recordingSeconds++
+            if(recordingSeconds>=30) {
+                try { capturedAudio=recorder.stop();message="30 saniyelik kayıt hazır." }
+                catch(_:Exception) { message="Ses kaydı tamamlanamadı." }
+            }
+        }
+    }
     val repository=remember { ReportRepository(app,app.database) }
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().systemBarsPadding().padding(20.dp)) {
@@ -62,16 +87,32 @@ fun FieldScreen(app:KomsuApplication) {
                     if(tenant.isEmpty()) Text("Önce Bağlantı bölümünden kurum oturumunu bir kez açın. Sonrasında raporlar çevrimdışı kaydedilebilir.")
                     OutlinedTextField(value=text,onValueChange={if(it.length<=8000)text=it},label={Text("Özgün saha raporu")},modifier=Modifier.fillMaxWidth(),minLines=3,enabled=!busy)
                     Row { listOf("tr","el","en").forEach { code -> FilterChip(selected=language==code,onClick={language=code},label={Text(code.uppercase())},modifier=Modifier.padding(end=8.dp)) } }
-                    Button(enabled=text.isNotBlank() && tenant.isNotEmpty() && !busy,onClick={
+                    Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                        if(!recorder.isRecording) Button(enabled=!busy,onClick={
+                            if(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED) {
+                                try { recorder.start(scope);recordingSeconds=0;message="Ses kaydı başladı. En fazla 30 saniye." }
+                                catch(_:Exception) { message="Ses kaydı başlatılamadı." }
+                            } else permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }) { Text(if(capturedAudio==null)"Ses kaydet" else "Yeniden kaydet") }
+                        if(recorder.isRecording) {
+                            Button(onClick={scope.launch { try { capturedAudio=recorder.stop();message="Ses kaydı hazır." } catch(_:Exception) { message="Kayıt çok kısa veya bozuk." } }}) { Text("Durdur ${recordingSeconds}s") }
+                            TextButton(onClick={scope.launch { runCatching { recorder.stop(discard=true) };message="Ses kaydı iptal edildi." }}) { Text("İptal") }
+                        }
+                        if(capturedAudio!=null && !recorder.isRecording) TextButton(onClick={capturedAudio=null}) { Text("Sesi kaldır") }
+                    }
+                    capturedAudio?.let { Text("WAV hazır · ${it.durationMs/1000.0} sn · ${it.wav.size/1024} KiB",style=MaterialTheme.typography.bodySmall) }
+                    Button(enabled=text.isNotBlank() && tenant.isNotEmpty() && !busy && !recorder.isRecording,onClick={
                         busy=true
-                        scope.launch { try { repository.create(text,language,tenant);text="";message="Telefona kaydedildi. Sunucuya ulaşana kadar kuyrukta tutulur." } catch(_:Exception) { message="Rapor kaydedilemedi. Metni koruyup yeniden deneyin." } finally { busy=false } }
+                        scope.launch { try { repository.create(text,language,tenant,capturedAudio);text="";capturedAudio=null;message="Rapor ve varsa sesi telefona kaydedildi. Sunucuya ulaşana kadar kuyrukta tutulur." } catch(_:Exception) { message="Rapor kaydedilemedi. Metni ve sesi koruyup yeniden deneyin." } finally { busy=false } }
                     },modifier=Modifier.fillMaxWidth()) { Text("Telefona kaydet ve sıraya al") }
                     Spacer(Modifier.height(16.dp));Text("Kalıcı rapor kuyruğu",style=MaterialTheme.typography.titleMedium)
-                    LazyColumn { items(reports,key={it.localId}) { report -> Card(Modifier.fillMaxWidth().padding(vertical=5.dp)) { Column(Modifier.padding(12.dp)) { Text(report.text);Text("${report.language.uppercase()} · ${report.syncStatus} · Deneme ${report.retryCount}",style=MaterialTheme.typography.labelSmall); report.errorCode?.let { Text(it,style=MaterialTheme.typography.bodySmall) } } } } }
+                    val audios by remember(tenant) { app.database.audio().observe(tenant) }.collectAsStateWithLifecycle(emptyList())
+                    val audioByReport=audios.associateBy { it.localReportId }
+                    LazyColumn { items(reports,key={it.localId}) { report -> Card(Modifier.fillMaxWidth().padding(vertical=5.dp)) { Column(Modifier.padding(12.dp)) { Text(report.text);Text("${report.language.uppercase()} · ${report.syncStatus} · Deneme ${report.retryCount}",style=MaterialTheme.typography.labelSmall);audioByReport[report.localId]?.let { Text("Ses · ${it.syncStatus} · Deneme ${it.retryCount}",style=MaterialTheme.typography.labelSmall) }; report.errorCode?.let { Text(it,style=MaterialTheme.typography.bodySmall) } } } } }
                 }
                 1 -> LazyColumn { item { Text("Çevrimdışı TR / EL / EN sözlük",style=MaterialTheme.typography.titleMedium);Text("Kayıtlı ses paketi henüz eklenmedi; saha dil doğrulaması bekleniyor.",style=MaterialTheme.typography.bodySmall) }; items(phrasebook) { phrase -> Card(Modifier.fillMaxWidth().padding(vertical=8.dp)) { Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(7.dp)) { Text(phrase.tr);Text(phrase.el);Text(phrase.en) } } } }
                 2 -> { Text("Son indirilen vakalar",style=MaterialTheme.typography.titleMedium);Text("Son alınan ilk 100 vaka gösterilir. Çevrimdışı bilgiler güncel olmayabilir. Bu uygulamadan sevk yapılmaz.",style=MaterialTheme.typography.bodySmall);LazyColumn { items(cases,key={it.id}) { cached -> val item=JSONObject(cached.json);Card(Modifier.fillMaxWidth().padding(vertical=6.dp)) { Column(Modifier.padding(12.dp)) { Text("#${cached.id.take(8)} · ${item.optString("urgency_level")}");Text(item.optString("status"));Text("Önbellek: ${java.time.Instant.ofEpochMilli(cached.cachedAt)}",style=MaterialTheme.typography.labelSmall) } } } } }
-                3 -> { OutlinedTextField(value=base,onValueChange={base=it},label={Text("Kurum API adresi")},modifier=Modifier.fillMaxWidth());OutlinedTextField(value=token,onValueChange={token=it},label={Text("Geçici erişim anahtarı")},visualTransformation=PasswordVisualTransformation(),modifier=Modifier.fillMaxWidth());Button(enabled=!busy,onClick={busy=true;scope.launch {try { val identity=withContext(Dispatchers.IO) { FieldNetwork.get(base to token,"/api/v1/auth/me") };val newTenant=identity.getString("tenant_id");app.sessions.save(base,token,newTenant);tenant=newTenant;token="";app.database.reports().resumeAuthenticated(tenant);SyncWorker.schedule(app);message="Oturum doğrulandı. Senkronizasyon sıraya alındı." } catch(_:Exception) {message="Bağlantı veya kimlik doğrulama başarısız. Anahtar ve adresi kontrol edin."} finally{busy=false} }}){Text("Doğrula ve bağlan")};Text("Bluetooth / Wi-Fi Direct aktarımı araştırma aşamasında. Donanım bağlantısı bu sürümde etkin değil.",style=MaterialTheme.typography.bodySmall) }
+                3 -> { OutlinedTextField(value=base,onValueChange={base=it},label={Text("Kurum API adresi")},modifier=Modifier.fillMaxWidth());OutlinedTextField(value=token,onValueChange={token=it},label={Text("Geçici erişim anahtarı")},visualTransformation=PasswordVisualTransformation(),modifier=Modifier.fillMaxWidth());Button(enabled=!busy,onClick={busy=true;scope.launch {try { val identity=withContext(Dispatchers.IO) { FieldNetwork.get(base to token,"/api/v1/auth/me") };val newTenant=identity.getString("tenant_id");app.sessions.save(base,token,newTenant);tenant=newTenant;token="";app.database.reports().resumeAuthenticated(tenant);app.database.audio().resumeAuthenticated(tenant);SyncWorker.schedule(app);message="Oturum doğrulandı. Senkronizasyon sıraya alındı." } catch(_:Exception) {message="Bağlantı veya kimlik doğrulama başarısız. Anahtar ve adresi kontrol edin."} finally{busy=false} }}){Text("Doğrula ve bağlan")};Text("Bluetooth / Wi-Fi Direct aktarımı araştırma aşamasında. Donanım bağlantısı bu sürümde etkin değil.",style=MaterialTheme.typography.bodySmall) }
             }
         }
     }

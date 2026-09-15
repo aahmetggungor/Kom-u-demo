@@ -6,8 +6,8 @@ Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabi
 
 ## Güncel başlangıç noktası
 
-- Kontrollü sunum demosu: yaklaşık `%85`.
-- Uzun gereksinim kapsamı: yaklaşık `%55`.
+- Kontrollü sunum demosu: yaklaşık `%90`.
+- Uzun gereksinim kapsamı: yaklaşık `%60`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
 - Bilinen kalite sınırları: sınıflandırma ihtiyaç recall `0.50`, semantic recall@1 `0.0`, kritik çeviri kayıpları ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
@@ -34,6 +34,8 @@ Komşu reposunda güncel PROJECT_STATUS.md, REQUIREMENTS.md ve son commit'i oku.
 ```
 
 ## Prompt 3 — Android ve web ses kaydı/kabul akışı
+
+Durum: **COMPLETED (2026-09-15)** — Android açık mikrofon izni, 30 saniye PCM WAV kayıt kontrolleri, Room v2→v3 ses kuyruğu ve idempotent upload; web demo kaydı/dosya doğrulaması ve açık tarayıcı/izin hataları tamamlandı. Altı emülatör testi geçti; fiziksel cihaz kaydı kanıtlanmadı.
 
 ```text
 Komşu reposunun güncel durum belgelerini oku. Yalnız kullanıcıdan kısa ses raporu alma akışını geliştir. Android'de açık izin isteme, en fazla 30 saniye kayıt, kullanıcıya süre/iptal/yeniden kayıt gösterimi, 16 kHz mono PCM WAV üretimi, çevrimdışı Room kuyruğu ve bağlantıda idempotent upload ekle. Web tarafında yalnız geliştirme/demo için erişilebilir dosya seçme veya kayıt akışı ekle; desteklenmeyen tarayıcıda açık hata göster. Boyut, MIME, sessizlik, izin reddi, process death, retry, 401/403/409 ve tenant değişimi testlerini kapsa. Mikrofon verisini loglama veya analitiğe gönderme. Android unit/instrumentation ve web testlerini çalıştır; fiziksel cihaz kanıtı yoksa bunu açık bırak. Belgeleri güncelle, commit oluştur ve Prompt 4'ü işaretle.

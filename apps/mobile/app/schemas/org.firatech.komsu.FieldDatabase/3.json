@@ -1,0 +1,306 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "79e8261a88c94d4ec5ad35c8e3b9fd3f",
+    "entities": [
+      {
+        "tableName": "reports",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localId` TEXT NOT NULL, `serverId` TEXT, `caseId` TEXT, `text` TEXT NOT NULL, `language` TEXT NOT NULL, `tenantId` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `lastAttempt` INTEGER NOT NULL, `retryCount` INTEGER NOT NULL, `version` INTEGER NOT NULL, `errorCode` TEXT, PRIMARY KEY(`localId`))",
+        "fields": [
+          {
+            "fieldPath": "localId",
+            "columnName": "localId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "serverId",
+            "columnName": "serverId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caseId",
+            "columnName": "caseId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tenantId",
+            "columnName": "tenantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "syncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAttempt",
+            "columnName": "lastAttempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "retryCount",
+            "columnName": "retryCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "localId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reports_syncStatus_lastAttempt",
+            "unique": false,
+            "columnNames": [
+              "syncStatus",
+              "lastAttempt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reports_syncStatus_lastAttempt` ON `${TABLE_NAME}` (`syncStatus`, `lastAttempt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "cached_cases",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tenantId` TEXT NOT NULL, `json` TEXT NOT NULL, `cachedAt` INTEGER NOT NULL, `version` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tenantId",
+            "columnName": "tenantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "json",
+            "columnName": "json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cachedAt",
+            "columnName": "cachedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "relay_custody",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tenantId` TEXT NOT NULL, `messageId` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `expiresAt` INTEGER NOT NULL, `maxHops` INTEGER NOT NULL, `hops` INTEGER NOT NULL, `ciphertext` BLOB NOT NULL, `signature` BLOB NOT NULL, PRIMARY KEY(`tenantId`, `messageId`))",
+        "fields": [
+          {
+            "fieldPath": "tenantId",
+            "columnName": "tenantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "messageId",
+            "columnName": "messageId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expiresAt",
+            "columnName": "expiresAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxHops",
+            "columnName": "maxHops",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hops",
+            "columnName": "hops",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ciphertext",
+            "columnName": "ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "signature",
+            "columnName": "signature",
+            "affinity": "BLOB",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tenantId",
+            "messageId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_relay_custody_tenantId_expiresAt",
+            "unique": false,
+            "columnNames": [
+              "tenantId",
+              "expiresAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_relay_custody_tenantId_expiresAt` ON `${TABLE_NAME}` (`tenantId`, `expiresAt`)"
+          }
+        ]
+      },
+      {
+        "tableName": "report_audio",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localReportId` TEXT NOT NULL, `tenantId` TEXT NOT NULL, `durationMs` INTEGER NOT NULL, `byteCount` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, `lastAttempt` INTEGER NOT NULL, `retryCount` INTEGER NOT NULL, `errorCode` TEXT, PRIMARY KEY(`localReportId`), FOREIGN KEY(`localReportId`) REFERENCES `reports`(`localId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "localReportId",
+            "columnName": "localReportId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tenantId",
+            "columnName": "tenantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "byteCount",
+            "columnName": "byteCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncStatus",
+            "columnName": "syncStatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAttempt",
+            "columnName": "lastAttempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "retryCount",
+            "columnName": "retryCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "errorCode",
+            "columnName": "errorCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "localReportId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_report_audio_tenantId_syncStatus_lastAttempt",
+            "unique": false,
+            "columnNames": [
+              "tenantId",
+              "syncStatus",
+              "lastAttempt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_report_audio_tenantId_syncStatus_lastAttempt` ON `${TABLE_NAME}` (`tenantId`, `syncStatus`, `lastAttempt`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "reports",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "localReportId"
+            ],
+            "referencedColumns": [
+              "localId"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '79e8261a88c94d4ec5ad35c8e3b9fd3f')"
+    ]
+  }
+}

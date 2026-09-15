@@ -24,6 +24,29 @@ data class LocalReport(
     val errorCode: String? = null
 )
 
+@Entity(
+    tableName = "report_audio",
+    foreignKeys = [
+        ForeignKey(
+            entity = LocalReport::class,
+            parentColumns = ["localId"],
+            childColumns = ["localReportId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["tenantId", "syncStatus", "lastAttempt"])],
+)
+data class LocalAudio(
+    @PrimaryKey val localReportId: String,
+    val tenantId: String,
+    val durationMs: Int,
+    val byteCount: Int,
+    val syncStatus: String = SyncStatus.QUEUED.name,
+    val lastAttempt: Long = 0,
+    val retryCount: Int = 0,
+    val errorCode: String? = null,
+)
+
 @Entity(tableName="cached_cases")
 data class CachedCase(@PrimaryKey val id: String, val tenantId:String, val json: String, val cachedAt: Long, val version: Int)
 
@@ -39,6 +62,45 @@ interface ReportDao {
     // A recent interrupted claim must keep WorkManager retrying until its lease expires.
     @Query("SELECT COUNT(*) FROM reports WHERE syncStatus IN ('QUEUED','SYNCING') AND tenantId=:tenant") suspend fun pendingCount(tenant:String):Int
     @Query("SELECT * FROM reports WHERE localId=:id") suspend fun get(id:String):LocalReport?
+}
+
+@Dao
+interface AudioDao {
+    @Query("SELECT * FROM report_audio WHERE tenantId=:tenant")
+    fun observe(tenant: String): Flow<List<LocalAudio>>
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(audio: LocalAudio)
+
+    @Query("SELECT * FROM report_audio WHERE syncStatus='QUEUED' AND tenantId=:tenant ORDER BY localReportId LIMIT 50")
+    suspend fun queued(tenant: String): List<LocalAudio>
+
+    @Query("UPDATE report_audio SET syncStatus='SYNCING', lastAttempt=:now, retryCount=retryCount+1 WHERE localReportId=:id AND tenantId=:tenant AND syncStatus='QUEUED'")
+    suspend fun claim(id: String, tenant: String, now: Long): Int
+
+    @Query("UPDATE report_audio SET syncStatus=:status, errorCode=:error WHERE localReportId=:id AND tenantId=:tenant AND syncStatus='SYNCING' AND lastAttempt=:claimTime")
+    suspend fun finish(
+        id: String,
+        tenant: String,
+        claimTime: Long,
+        status: String,
+        error: String?,
+    ): Int
+
+    @Query("UPDATE report_audio SET syncStatus='QUEUED', errorCode='RECOVERED_INTERRUPTED_SYNC' WHERE syncStatus='SYNCING' AND lastAttempt<:cutoff")
+    suspend fun recover(cutoff: Long)
+
+    @Query("UPDATE report_audio SET syncStatus='QUEUED', errorCode=NULL WHERE tenantId=:tenant AND syncStatus='FAILED' AND errorCode='AUTH_REQUIRED'")
+    suspend fun resumeAuthenticated(tenant: String)
+
+    @Query("SELECT COUNT(*) FROM report_audio WHERE syncStatus IN ('QUEUED','SYNCING') AND tenantId=:tenant")
+    suspend fun pendingCount(tenant: String): Int
+
+    @Query("SELECT * FROM report_audio WHERE localReportId=:id AND tenantId=:tenant")
+    suspend fun get(id: String, tenant: String): LocalAudio?
+
+    @Query("UPDATE report_audio SET syncStatus=:status, errorCode=:error WHERE localReportId=:id AND tenantId=:tenant AND syncStatus IN ('QUEUED','SYNCING')")
+    suspend fun blockForReport(id: String, tenant: String, status: String, error: String?): Int
 }
 
 @Dao
@@ -80,9 +142,14 @@ interface RelayDao {
     @Query("SELECT COUNT(*) FROM relay_custody WHERE tenantId=:tenant") suspend fun count(tenant:String):Int
 }
 
-@Database(entities=[LocalReport::class,CachedCase::class,RelayEnvelopeRow::class],version=2,exportSchema=true)
+@Database(
+    entities=[LocalReport::class,CachedCase::class,RelayEnvelopeRow::class,LocalAudio::class],
+    version=3,
+    exportSchema=true,
+)
 abstract class FieldDatabase:RoomDatabase() {
     abstract fun reports():ReportDao
+    abstract fun audio():AudioDao
     abstract fun cases():CaseDao
     abstract fun relay():RelayDao
 }

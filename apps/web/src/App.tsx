@@ -1,5 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
-import { ApiError, coordinatePair, request, type Case, type Detail, type Report, type Team } from './api';
+import { ApiError, coordinatePair, request, uploadAudio, type Case, type Detail, type Report, type Team } from './api';
+import { AudioInputError, BrowserPcmRecorder, fileAsPcmWav, validatePcmWav } from './audio';
 import { catalogues, formatText, initialLocale, type Catalogue, type UiLocale } from './i18n';
 import { LocationCandidates } from './LocationCandidates';
 import { RegroupPanel } from './RegroupPanel';
@@ -28,8 +29,10 @@ export default function App() {
   const [urgency,setUrgency] = useState(''), [verification,setVerification] = useState(''), [language,setLanguage] = useState('');
   const [incident,setIncident] = useState(''), [status,setStatus] = useState(''), [region,setRegion] = useState(''), [teamFilter,setTeamFilter] = useState(''), [timeRange,setTimeRange] = useState('');
   const [text,setText] = useState(''), [reportLanguage,setReportLanguage] = useState('tr'), [address,setAddress] = useState('');
+  const [audio,setAudio] = useState<Blob|null>(null),[audioLabel,setAudioLabel]=useState(''),[recording,setRecording]=useState(false),[recordingSeconds,setRecordingSeconds]=useState(0);
   const [busy,setBusy] = useState(false), [showForm,setShowForm] = useState(false);
   const selected = useRef<string|null>(null), pending = useRef<{client_id:string;text:string;source:string;language:string;occurred_at:string;address_raw:string}|null>(null);
+  const recorder=useRef<BrowserPcmRecorder|null>(null),recordingStarted=useRef(0),fileInput=useRef<HTMLInputElement|null>(null);
   const fetchSequence = useRef(0), detailSequence = useRef(0), sessionGeneration = useRef(0);
 
   useEffect(()=>{
@@ -41,8 +44,9 @@ export default function App() {
     sessionGeneration.current++; fetchSequence.current++; detailSequence.current++;
     selected.current=null; pending.current=null;
     setToken('');setEntry('');setRole('');setCases([]);setTeams([]);setDetail(null);
-    setTotal(0);setUpdated(null);setText('');setAddress('');setNotice('');setShowForm(false);setBusy(false);setConnection('disconnected');
-  },[]);
+    if(recording)recorder.current?.stop(true).catch(()=>{});recorder.current=null;
+    setTotal(0);setUpdated(null);setText('');setAddress('');setAudio(null);setAudioLabel('');setRecording(false);setNotice('');setShowForm(false);setBusy(false);setConnection('disconnected');
+  },[recording]);
   const allowed = role === 'admin' || role === 'coordinator';
   const fail = useCallback((e:unknown) => {
     setError(e instanceof Error ? e.message : catalogues[uiLocale].operationFailed);
@@ -67,6 +71,14 @@ export default function App() {
   },[token,fail]);
 
   useEffect(() => {refresh().catch(fail);},[refresh,fail]);
+  useEffect(()=>{
+    if(!recording)return;
+    const timer=setInterval(()=>{
+      const elapsed=Math.min(30,Math.floor((Date.now()-recordingStarted.current)/1000));setRecordingSeconds(elapsed);
+      if(elapsed>=30)finishRecording().catch(fail);
+    },250);
+    return()=>clearInterval(timer);
+  },[recording,fail]);
   useEffect(() => {
     if(!token) return;
     let disposed=false, socket:WebSocket|undefined, timer:ReturnType<typeof setTimeout>|undefined, cursor=0;
@@ -92,13 +104,36 @@ export default function App() {
     try {const result=await request<{role:string}>(entry,'/auth/me');const list=await request<Team[]>(entry,'/teams');setRole(result.role);setTeams(list);setToken(entry);setEntry('');}
     catch(e){fail(e);}
   }
+  function audioError(error:unknown){
+    if(error instanceof AudioInputError){
+      if(error.code==='PERMISSION_DENIED')return copy.microphoneDenied;
+      if(error.code==='UNSUPPORTED')return copy.recordingUnsupported;
+    }
+    return copy.invalidAudio;
+  }
+  async function startRecording(){
+    setError('');
+    try{const active=new BrowserPcmRecorder();await active.start();recorder.current=active;recordingStarted.current=Date.now();setRecordingSeconds(0);setRecording(true);}
+    catch(error){setError(audioError(error));}
+  }
+  async function finishRecording(discard=false){
+    const active=recorder.current;if(!active)return;recorder.current=null;setRecording(false);
+    try{const result=await active.stop(discard);if(result){const meta=validatePcmWav(await result.arrayBuffer());setAudio(result);setAudioLabel(t('recordingReady',{seconds:(meta.durationMs/1000).toFixed(1)}));}else{setNotice(copy.recordingCancelled);}}
+    catch(error){setError(audioError(error));}
+  }
+  async function chooseAudio(event:React.ChangeEvent<HTMLInputElement>){
+    const file=event.target.files?.[0];event.target.value='';if(!file)return;
+    try{const value=await fileAsPcmWav(file);const meta=validatePcmWav(await value.arrayBuffer());setAudio(value);setAudioLabel(t('fileReady',{name:file.name,seconds:(meta.durationMs/1000).toFixed(1)}));setError('');}
+    catch(error){setError(audioError(error));}
+  }
   async function submit(e:React.FormEvent){
     e.preventDefault();setBusy(true);setError('');const generation=sessionGeneration.current;
     try{
       if(!pending.current)pending.current={client_id:crypto.randomUUID(),text,source:'manual',language:reportLanguage,occurred_at:new Date().toISOString(),address_raw:address};
-      const result=await request<{case_id:string}>(token,'/reports',pending.current);
+      const result=await request<{case_id:string;report_id:string}>(token,'/reports',pending.current);
+      if(audio)await uploadAudio(token,result.report_id,audio);
       if(generation!==sessionGeneration.current)return;
-      pending.current=null;setText('');setAddress('');setShowForm(false);setNotice(copy.receivedNotice);
+      pending.current=null;setText('');setAddress('');setAudio(null);setAudioLabel('');setShowForm(false);setNotice(audio?copy.receivedWithAudio:copy.receivedNotice);
       await refresh();if(generation===sessionGeneration.current)await selectCase(result.case_id);
     }catch(e){if(generation===sessionGeneration.current)fail(e);}finally{if(generation===sessionGeneration.current)setBusy(false);}
   }
@@ -125,7 +160,7 @@ export default function App() {
         <div><span>{copy.humanReview}</span><strong>{stats.review.toString().padStart(2,'0')}</strong><small>{copy.pendingVisible}</small></div>
         <div><span>{copy.awaitingLocation}</span><strong>{stats.unlocated.toString().padStart(2,'0')}</strong><small>{copy.hiddenFromMap}</small></div>
       </div>
-      {showForm&&<form className="report-form" onSubmit={submit}><div><h2>{copy.reportTitle}</h2><p>{copy.reportRetryHelp}</p></div><label>{copy.originalMessage}<textarea value={text} disabled={!!pending.current} required maxLength={8000} onChange={e=>setText(e.target.value)}/></label><label>{copy.address}<input value={address} disabled={!!pending.current} onChange={e=>setAddress(e.target.value)} maxLength={1000}/></label><label>{copy.language}<select value={reportLanguage} disabled={!!pending.current} onChange={e=>setReportLanguage(e.target.value)}><option value="tr">Türkçe</option><option value="el">Ελληνικά</option><option value="en">English</option></select></label><button disabled={busy}>{busy?copy.sending:pending.current?copy.resend:copy.sendReport}</button></form>}
+      {showForm&&<form className="report-form" onSubmit={submit}><div><h2>{copy.reportTitle}</h2><p>{copy.reportRetryHelp}</p></div><label>{copy.originalMessage}<textarea value={text} disabled={!!pending.current} required maxLength={8000} onChange={e=>setText(e.target.value)}/></label><label>{copy.address}<input value={address} disabled={!!pending.current} onChange={e=>setAddress(e.target.value)} maxLength={1000}/></label><label>{copy.language}<select value={reportLanguage} disabled={!!pending.current} onChange={e=>setReportLanguage(e.target.value)}><option value="tr">Türkçe</option><option value="el">Ελληνικά</option><option value="en">English</option></select></label><fieldset className="audio-input"><legend>{copy.addAudio}</legend><p>{copy.audioInputHelp}</p><input ref={fileInput} className="visually-hidden" type="file" accept=".wav,audio/wav,audio/x-wav" onChange={chooseAudio}/><div>{!recording&&<button type="button" disabled={!!pending.current||busy} onClick={startRecording}>{audio?copy.recordAgain:copy.startRecording}</button>}{recording&&<><button type="button" onClick={()=>finishRecording()}>{t('stopRecording',{seconds:recordingSeconds})}</button><button type="button" className="quiet" onClick={()=>finishRecording(true)}>{copy.cancelRecording}</button></>}<button type="button" className="quiet" disabled={!!pending.current||busy||recording} onClick={()=>fileInput.current?.click()}>{copy.chooseWav}</button>{audio&&!recording&&<button type="button" className="quiet" disabled={!!pending.current||busy} onClick={()=>{setAudio(null);setAudioLabel('');}}>{copy.removeAudio}</button>}</div>{audioLabel&&<output>{audioLabel}</output>}</fieldset><button disabled={busy||recording}>{busy?copy.sending:pending.current?copy.resend:copy.sendReport}</button></form>}
       <div className="filters">
         <label>{copy.priority}<select value={urgency} onChange={e=>setUrgency(e.target.value)}><option value="">{copy.all}</option>{Object.entries(names.urgency).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
         <label>{copy.verification}<select value={verification} onChange={e=>setVerification(e.target.value)}><option value="">{copy.all}</option><option value="UNVERIFIED">{copy.unverified}</option><option value="VERIFIED">{copy.verified}</option><option value="REJECTED">{copy.rejected}</option></select></label>
