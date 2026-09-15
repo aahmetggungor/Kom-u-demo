@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-15",
+  "restored_database": "komsu_restore_20260915_0248",
+  "backup_sha256": "331b94d0d9bab570d5a618f82ac00d0623a03dfc2dad0ca2128965e33817228e",
+  "backup_bytes": 192131,
+  "migrated_from": "0002",
+  "migrated_to": "0004",
+  "demo_tenant_reports": 12,
+  "demo_tenant_embeddings": 12,
+  "runtime_auth": true,
+  "tenant_rls": true,
+  "semantic_retrieval": true,
+  "scope": "Local logical restore and forward migration on the same PostgreSQL instance; not offsite disaster recovery or HA validation"
+}

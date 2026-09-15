@@ -1,0 +1,11 @@
+# ADR-007: Existing local translation models and provenance
+
+Context: original source must remain accessible for both translation and transcription (FUNC-004/009/017).
+
+Decision: typed translation/transcription ports and an opt-in local OPUS-MT pack with per-direction immutable revision, SHA-256, license and inference provenance. Direct TR↔EN and EL↔EN routes are used; TR↔EL is marked as an EN pivot. The loader accepts local files only, rejects remote code, verifies weights and retains at most two loaded routes. Unconfigured or failed models report UNAVAILABLE/PARTIAL; source text is never labelled as translation. Translation cannot change classification, grouping, priority or dispatch.
+
+Alternatives: remote vendors require data transfer agreements and connectivity; training from scratch exceeds first sprint scope; NLLB variants need license review before municipal licensing assumptions.
+
+Consequences: translation may be absent while manual work continues. A six-case authored smoke set preserved every numeral in 3/6, a detectable negation in 1/4 negation cases and protected names verbatim in 0/6. These heuristics are diagnostic rather than a quality score. Dropped numerals/negation and EN pivots are surfaced to the coordinator; every translation asks for source comparison. A pinned legacy EL→EN candidate produced nonsensical output on the current runtime and was rejected with evidence. Native-speaker, incident-domain critical-error evaluation remains a pilot gate. Model inference stays in an optional local worker; no source text enters provider logs.
+
+Transcription decision: a separate local Whisper adapter accepts only bounded mono 16 kHz PCM WAV files below an approved root, applies a conservative silence gate before model loading, verifies pinned safetensors, and returns model/duration/warnings. It is not connected to report ingestion until durable encrypted audio custody, retention deletion, decoder isolation, queue behavior and abuse limits are implemented. Two OS-TTS fixtures verify TR/EN plumbing; they are not human speech validation and no Greek fixture exists.

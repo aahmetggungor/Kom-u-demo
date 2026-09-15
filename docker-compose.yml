@@ -1,0 +1,59 @@
+name: komsu
+services:
+  db:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/postgres.Dockerfile
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: komsu
+      POSTGRES_PASSWORD: ${KOMSU_DB_PASSWORD:?Run scripts/configure_local.py}
+      KOMSU_APP_PASSWORD: ${KOMSU_APP_PASSWORD:?Run scripts/configure_local.py}
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: ["komsu_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d komsu"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  migrate:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    environment:
+      KOMSU_ADMIN_DATABASE_URL: postgresql+psycopg://postgres:${KOMSU_DB_PASSWORD}@db:5432/komsu
+    depends_on:
+      db: {condition: service_healthy}
+    command: ["alembic", "upgrade", "head"]
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    environment:
+      KOMSU_DATABASE_URL: postgresql+psycopg://komsu_app:${KOMSU_APP_PASSWORD}@db:5432/komsu
+      KOMSU_EMBEDDING_REVISION: ${KOMSU_EMBEDDING_REVISION:-}
+      KOMSU_AUDIO_MASTER_KEY_B64: ${KOMSU_AUDIO_MASTER_KEY_B64:-}
+      KOMSU_AUDIO_KEY_ID: ${KOMSU_AUDIO_KEY_ID:-development-audio-v1}
+      KOMSU_MAX_AUDIO_BYTES: ${KOMSU_MAX_AUDIO_BYTES:-2000000}
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  worker:
+    profiles: ["worker"]
+    restart: "on-failure:5"
+    build:
+      context: .
+      dockerfile: infrastructure/docker/api.Dockerfile
+    environment:
+      KOMSU_DATABASE_URL: postgresql+psycopg://komsu_app:${KOMSU_APP_PASSWORD}@db:5432/komsu
+      KOMSU_WORKER_TENANT: ${KOMSU_WORKER_TENANT:-}
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    command: ["komsu", "worker"]
+volumes:
+  komsu_data:

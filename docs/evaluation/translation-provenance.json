@@ -1,0 +1,46 @@
+{
+  "format": 1,
+  "routes": {
+    "tr-en": {
+      "repository": "Helsinki-NLP/opus-mt-tr-en",
+      "revision": "19c65427cc2af5f191337d4899e0348c4af25902",
+      "weights_sha256": "e2b820f31c9348b0ae33d77ac23bd1686fa60a8afa0b9511bc7d9a35c125b534",
+      "license": "Apache-2.0",
+      "weights_file": "pytorch_model.bin",
+      "directory": "tr-en",
+      "weights_bytes": 306727185,
+      "loading": "local_files_only; trust_remote_code=False; weights_only=True"
+    },
+    "en-tr": {
+      "repository": "Helsinki-NLP/opus-mt-en-trk",
+      "revision": "f9d8f6cd9d95d2f8ce34943c1f6cfe610d3bbf92",
+      "weights_sha256": "8382c39effafc5e3b9f5b0fcdcd10a7efbc551ef57398b6bf175d2e986ecec86",
+      "license": "Apache-2.0",
+      "weights_file": "pytorch_model.bin",
+      "target_prefix": ">>tur<< ",
+      "directory": "en-tr",
+      "weights_bytes": 305260005,
+      "loading": "local_files_only; trust_remote_code=False; weights_only=True"
+    },
+    "el-en": {
+      "repository": "Helsinki-NLP/opus-mt_tiny_ell-eng",
+      "revision": "beff0d92479a72deff22f722ab28efa81d2ac8a9",
+      "weights_sha256": "15fe617eac2acb5d924f809bbcdf627dd31f75850928c1ae260a5934876d9837",
+      "license": "Apache-2.0",
+      "weights_file": "model.safetensors",
+      "directory": "el-en-tiny",
+      "weights_bytes": 50743442,
+      "loading": "local_files_only; trust_remote_code=False; weights_only=True"
+    },
+    "en-el": {
+      "repository": "Helsinki-NLP/opus-mt-en-el",
+      "revision": "1653673990e6f1e3baf0a903f38e231730704444",
+      "weights_sha256": "11dc5a1b560806b1096c96cbf722ef5198ebb28b7b4115ea579261c54de40207",
+      "license": "Apache-2.0",
+      "weights_file": "pytorch_model.bin",
+      "directory": "en-el",
+      "weights_bytes": 311727909,
+      "loading": "local_files_only; trust_remote_code=False; weights_only=True"
+    }
+  }
+}

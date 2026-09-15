@@ -1,0 +1,18 @@
+{"text":"Enkaz yok, yaralı yok; sadece haber vermek istedim.","language":"tr","gold":{"needs":[],"incident_type":"unknown"}}
+{"text":"İçecek hiçbir şeyimiz kalmadı.","language":"tr","gold":{"needs":["water"],"incident_type":"unknown"}}
+{"text":"Evimiz depremde yıkıldı, geceyi dışarıda geçireceğiz.","language":"tr","gold":{"needs":["shelter"],"incident_type":"earthquake"}}
+{"text":"Su gerekiyor, yiyeceğimiz de bitti.","language":"tr","gold":{"needs":["water","food"],"incident_type":"unknown"}}
+{"text":"Sel sonrası mahsur kaldık, ambulans gönderin.","language":"tr","gold":{"needs":["rescue","medical"],"incident_type":"flood"}}
+{"text":"Tatbikat: yangın senaryosu sona erdi, yardım gerekmiyor.","language":"tr","gold":{"needs":[],"incident_type":"unknown"}}
+{"text":"Nobody is trapped and nobody is injured.","language":"en","gold":{"needs":[],"incident_type":"unknown"}}
+{"text":"We have nothing left to drink.","language":"en","gold":{"needs":["water"],"incident_type":"unknown"}}
+{"text":"Our house collapsed in the earthquake; we need a place to sleep.","language":"en","gold":{"needs":["shelter"],"incident_type":"earthquake"}}
+{"text":"Please bring water and something to eat.","language":"en","gold":{"needs":["water","food"],"incident_type":"unknown"}}
+{"text":"Flood: two people trapped, one bleeding.","language":"en","gold":{"needs":["rescue","medical"],"incident_type":"flood"}}
+{"text":"Wildfire exercise finished; no assistance required.","language":"en","gold":{"needs":[],"incident_type":"unknown"}}
+{"text":"Δεν υπάρχουν τραυματίες ή εγκλωβισμένοι.","language":"el","gold":{"needs":[],"incident_type":"unknown"}}
+{"text":"Δεν έχουμε τίποτα να πιούμε.","language":"el","gold":{"needs":["water"],"incident_type":"unknown"}}
+{"text":"Το σπίτι μας έπεσε στον σεισμό, χρειαζόμαστε μέρος να κοιμηθούμε.","language":"el","gold":{"needs":["shelter"],"incident_type":"earthquake"}}
+{"text":"Χρειαζόμαστε νερό και κάτι να φάμε.","language":"el","gold":{"needs":["water","food"],"incident_type":"unknown"}}
+{"text":"Πλημμύρα: εγκλωβισμένοι άνθρωποι, χρειάζεται ασθενοφόρο.","language":"el","gold":{"needs":["rescue","medical"],"incident_type":"flood"}}
+{"text":"Η άσκηση πυρκαγιάς τελείωσε, δεν χρειάζεται βοήθεια.","language":"el","gold":{"needs":[],"incident_type":"unknown"}}

@@ -1,0 +1,62 @@
+{
+  "original_language": "tr",
+  "translated_text": {
+    "el": "Υπάρχουν τρία άτομα κάτω από τα ερείπια στην οδό 1462.",
+    "en": "There's three people under the rubble at 1462 Street."
+  },
+  "translation_status": "COMPLETE",
+  "translation_provenance": {
+    "el": {
+      "route": [
+        "tr",
+        "en",
+        "el"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902",
+        "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
+      ],
+      "pivoted": true,
+      "warnings": [
+        "NUMERALS_CHANGED_OR_DROPPED",
+        "NEGATION_NOT_DETECTED_IN_OUTPUT"
+      ]
+    },
+    "en": {
+      "route": [
+        "tr",
+        "en"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902"
+      ],
+      "pivoted": false,
+      "warnings": [
+        "NUMERALS_CHANGED_OR_DROPPED",
+        "NEGATION_NOT_DETECTED_IN_OUTPUT"
+      ]
+    }
+  },
+  "warnings": [
+    "UNCALIBRATED_BASELINE",
+    "HUMAN_REVIEW_REQUIRED",
+    "NEGATION_REQUIRES_REVIEW",
+    "TRANSLATION_EN_PIVOT_el",
+    "TRANSLATION_NUMERALS_CHANGED_OR_DROPPED_el",
+    "TRANSLATION_NEGATION_NOT_DETECTED_IN_OUTPUT_el",
+    "TRANSLATION_NUMERALS_CHANGED_OR_DROPPED_en",
+    "TRANSLATION_NEGATION_NOT_DETECTED_IN_OUTPUT_en"
+  ],
+  "stages": {
+    "language": "heuristic",
+    "transcription": "not_applicable_text",
+    "normalization": "completed",
+    "classification": "heuristic",
+    "ner": "not_configured",
+    "geocoding": "not_configured",
+    "translation": "complete",
+    "duplicate": "proposal_only"
+  },
+  "human_review_required": true,
+  "seconds": 8.909
+}

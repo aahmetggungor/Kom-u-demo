@@ -1,0 +1,179 @@
+{
+  "summary": {
+    "kind": "authored-smoke-diagnostic-not-a-quality-benchmark",
+    "human_bilingual_review": "NOT_PERFORMED",
+    "cases": 6,
+    "numerals_preserved": 3,
+    "protected_terms_preserved_verbatim": 0,
+    "negation_marker_present": 1,
+    "negation_cases": 4
+  },
+  "results": [
+    {
+      "id": "tr-en-negation-address",
+      "source": "tr",
+      "target": "en",
+      "text": "Alsancak 1462 Sokak No 8, enkaz altında 3 kişi var. Su gerekmiyor.",
+      "protected_terms": [
+        "Alsancak"
+      ],
+      "expects_negation": true,
+      "output": "There's three people under the rubble at 1462 Street.",
+      "route": [
+        "tr",
+        "en"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902"
+      ],
+      "pivoted": false,
+      "seconds": 7.129,
+      "source_numerals": [
+        "1462",
+        "8",
+        "3"
+      ],
+      "numerals_preserved": false,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": false
+    },
+    {
+      "id": "en-tr-negation-address",
+      "source": "en",
+      "target": "tr",
+      "text": "At 8 Seaside Street, 2 people are trapped. Do not send food.",
+      "protected_terms": [
+        "Seaside"
+      ],
+      "expects_negation": true,
+      "output": "8 Seade Caddesi'nde, 2 kişi kısıldı.",
+      "route": [
+        "en",
+        "tr"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-en-trk@f9d8f6cd9d95d2f8ce34943c1f6cfe610d3bbf92"
+      ],
+      "pivoted": false,
+      "seconds": 1.583,
+      "source_numerals": [
+        "8",
+        "2"
+      ],
+      "numerals_preserved": true,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": false
+    },
+    {
+      "id": "el-en-negation-address",
+      "source": "el",
+      "target": "en",
+      "text": "Στην οδό Σμύρνης 12 υπάρχουν 4 τραυματίες. Δεν χρειαζόμαστε νερό.",
+      "protected_terms": [
+        "Σμύρνης"
+      ],
+      "expects_negation": true,
+      "output": "At 12 Smyrni Street there are 4 injured.",
+      "route": [
+        "el",
+        "en"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt_tiny_ell-eng@beff0d92479a72deff22f722ab28efa81d2ac8a9"
+      ],
+      "pivoted": false,
+      "seconds": 0.806,
+      "source_numerals": [
+        "12",
+        "4"
+      ],
+      "numerals_preserved": true,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": false
+    },
+    {
+      "id": "en-el-negation-address",
+      "source": "en",
+      "target": "el",
+      "text": "At Smyrna Street 12 there are 4 injured people. We do not need water.",
+      "protected_terms": [
+        "Smyrna"
+      ],
+      "expects_negation": true,
+      "output": "Στην οδό Σμύρνη 12 υπάρχουν 4 τραυματίες, δεν χρειαζόμαστε νερό.",
+      "route": [
+        "en",
+        "el"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
+      ],
+      "pivoted": false,
+      "seconds": 1.741,
+      "source_numerals": [
+        "12",
+        "4"
+      ],
+      "numerals_preserved": true,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": true
+    },
+    {
+      "id": "tr-el-pivot-count",
+      "source": "tr",
+      "target": "el",
+      "text": "Bornova Kazımdirik Mahallesi'nde 5 yaralı var, ambulans gerekli.",
+      "protected_terms": [
+        "Bornova",
+        "Kazımdirik"
+      ],
+      "expects_negation": false,
+      "output": "Πέντε τραυματίες στη γειτονιά Μπόρνοβα Καζίμντρικ, χρειάζονται ασθενοφόρο.",
+      "route": [
+        "tr",
+        "en",
+        "el"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902",
+        "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
+      ],
+      "pivoted": true,
+      "seconds": 2.072,
+      "source_numerals": [
+        "5"
+      ],
+      "numerals_preserved": false,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": null
+    },
+    {
+      "id": "el-tr-pivot-count",
+      "source": "el",
+      "target": "tr",
+      "text": "Στο χωριό Βρίσα υπάρχουν 6 εγκλωβισμένοι και χρειάζεται ασθενοφόρο.",
+      "protected_terms": [
+        "Βρίσα"
+      ],
+      "expects_negation": false,
+      "output": "Vries köyünde altı ambulansa ihtiyacı var.",
+      "route": [
+        "el",
+        "en",
+        "tr"
+      ],
+      "model_revisions": [
+        "Helsinki-NLP/opus-mt_tiny_ell-eng@beff0d92479a72deff22f722ab28efa81d2ac8a9",
+        "Helsinki-NLP/opus-mt-en-trk@f9d8f6cd9d95d2f8ce34943c1f6cfe610d3bbf92"
+      ],
+      "pivoted": true,
+      "seconds": 2.213,
+      "source_numerals": [
+        "6"
+      ],
+      "numerals_preserved": false,
+      "protected_terms_preserved_verbatim": false,
+      "negation_marker_present": null
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "kind": "synthetic_challenge_not_independent_validation",
+  "pipeline": "rules-0.1",
+  "languages": {
+    "tr": {
+      "samples": 6,
+      "need_precision_micro": 0.6,
+      "need_recall_micro": 0.5,
+      "need_f1_micro": 0.5454545454545454,
+      "need_false_negative_rate": 0.5,
+      "need_exact_match": 0.3333333333333333,
+      "taxonomy_accuracy": 0.8333333333333334,
+      "inference_median_ms": 0.18739998631644994,
+      "false_positives": 2,
+      "false_negatives": 3
+    },
+    "en": {
+      "samples": 6,
+      "need_precision_micro": 0.6,
+      "need_recall_micro": 0.5,
+      "need_f1_micro": 0.5454545454545454,
+      "need_false_negative_rate": 0.5,
+      "need_exact_match": 0.3333333333333333,
+      "taxonomy_accuracy": 0.8333333333333334,
+      "inference_median_ms": 0.08840000373311341,
+      "false_positives": 2,
+      "false_negatives": 3
+    },
+    "el": {
+      "samples": 6,
+      "need_precision_micro": 0.6,
+      "need_recall_micro": 0.5,
+      "need_f1_micro": 0.5454545454545454,
+      "need_false_negative_rate": 0.5,
+      "need_exact_match": 0.3333333333333333,
+      "taxonomy_accuracy": 0.8333333333333334,
+      "inference_median_ms": 0.10664999717846513,
+      "false_positives": 2,
+      "false_negatives": 3
+    }
+  },
+  "location_accuracy": null,
+  "duplicate_precision": null,
+  "duplicate_recall": null,
+  "translation_quality": null,
+  "time_to_triage": null,
+  "unmeasured_reason": "No active location/semantic/translation model or end-to-end benchmark in this script; template fit is not field performance."
+}

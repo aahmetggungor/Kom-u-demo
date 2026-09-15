@@ -1,0 +1,18 @@
+{
+  "measured_at": "2026-09-14T11:16:11.760720+00:00",
+  "scenario": "local Docker API/PostgreSQL; 6 HTTP clients burst then one host worker drains queue",
+  "samples": 30,
+  "ingestion_ack_ms": {
+    "p50": 40.174,
+    "p95": 79.783,
+    "p99": 85.247
+  },
+  "persist_to_rule_analysis_ms": {
+    "p50": 370.279,
+    "p95": 490.554,
+    "p99": 501.208
+  },
+  "elapsed_seconds": 0.818,
+  "all_processed": true,
+  "limits": "No model inference, external services, human triage, sustained load or failover measured. Queue drain deliberately begins after ingestion burst. Small local sample; not an SLO or capacity guarantee."
+}

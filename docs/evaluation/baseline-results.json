@@ -1,0 +1,48 @@
+{
+  "kind": "synthetic_template_regression_only",
+  "pipeline": "rules-0.1",
+  "languages": {
+    "tr": {
+      "samples": 1000,
+      "need_precision_micro": 1.0,
+      "need_recall_micro": 1.0,
+      "need_f1_micro": 1.0,
+      "need_false_negative_rate": 0.0,
+      "need_exact_match": 1.0,
+      "taxonomy_accuracy": 1.0,
+      "inference_median_ms": 0.09799998952075839,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    "el": {
+      "samples": 1000,
+      "need_precision_micro": 1.0,
+      "need_recall_micro": 1.0,
+      "need_f1_micro": 1.0,
+      "need_false_negative_rate": 0.0,
+      "need_exact_match": 1.0,
+      "taxonomy_accuracy": 1.0,
+      "inference_median_ms": 0.13525001122616231,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    "en": {
+      "samples": 1000,
+      "need_precision_micro": 1.0,
+      "need_recall_micro": 1.0,
+      "need_f1_micro": 1.0,
+      "need_false_negative_rate": 0.0,
+      "need_exact_match": 1.0,
+      "taxonomy_accuracy": 1.0,
+      "inference_median_ms": 0.1092999882530421,
+      "false_positives": 0,
+      "false_negatives": 0
+    }
+  },
+  "location_accuracy": null,
+  "duplicate_precision": null,
+  "duplicate_recall": null,
+  "translation_quality": null,
+  "time_to_triage": null,
+  "unmeasured_reason": "No active location/semantic/translation model or end-to-end benchmark in this script; template fit is not field performance."
+}

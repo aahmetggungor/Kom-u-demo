@@ -1,0 +1,9 @@
+{
+  "date": "2026-09-15",
+  "script": "scripts/check_embedding_watch.py",
+  "actual_local_model": true,
+  "first_arrival_seconds": 15.094,
+  "second_arrival_seconds": 1.015,
+  "committed_embeddings": 2,
+  "scope": "Two sequential synthetic arrivals in an isolated tenant; not a load benchmark"
+}

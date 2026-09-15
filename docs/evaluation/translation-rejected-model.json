@@ -1,0 +1,10 @@
+{
+  "model": "Helsinki-NLP/opus-mt-tc-big-el-en@a69108562775c6727edf3540346f9d8900b73634",
+  "weights_sha256": "2a30b159a0e11459c18e5613255087f3adfa3ecaffb551e9609638fe69ca6d6d",
+  "runtime": "transformers 5.17.0, torch 2.14.0+cpu",
+  "status": "REJECTED_FROM_ACTIVE_PACK",
+  "reason": "A coherent synthetic Greek emergency sentence produced nonsensical English under the pinned local runtime.",
+  "input": "Στην οδό Σμύρνης 12 υπάρχουν 4 τραυματίες. Δεν χρειαζόμαστε νερό.",
+  "output_excerpt": "CDgovernmental leadsRATmodern visited Army advent ReinChar haemo Vector",
+  "decision": "Do not activate this model. The diagnostic is not a general model evaluation."
+}
