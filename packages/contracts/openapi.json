@@ -484,6 +484,59 @@
         }
       }
     },
+    "/api/v1/reports/{report_id}/audio/transcript/review": {
+      "post": {
+        "summary": "Audio Transcript Review",
+        "operationId": "audio_transcript_review_api_v1_reports__report_id__audio_transcript_review_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptReviewIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/{report_id}": {
       "get": {
         "summary": "Report Detail",
@@ -1852,6 +1905,46 @@
           "name"
         ],
         "title": "TeamIn"
+      },
+      "TranscriptReviewIn": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "corrected_text": {
+            "type": "string",
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Corrected Text"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "tr",
+              "el",
+              "en",
+              "und"
+            ],
+            "title": "Language"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "corrected_text",
+          "language",
+          "reason"
+        ],
+        "title": "TranscriptReviewIn"
       },
       "ValidationError": {
         "properties": {

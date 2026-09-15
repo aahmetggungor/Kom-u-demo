@@ -132,6 +132,20 @@ class AudioDecisionIn(StrictModel):
         return value.strip()
 
 
+class TranscriptReviewIn(StrictModel):
+    expected_version: int = Field(ge=1)
+    corrected_text: str = Field(min_length=1, max_length=8000)
+    language: Literal["tr", "el", "en", "und"]
+    reason: str = Field(min_length=3, max_length=500)
+
+    @field_validator("corrected_text", "reason")
+    @classmethod
+    def nonblank_transcript_value(cls, value):
+        if not value.strip():
+            raise ValueError("value cannot be blank")
+        return value.strip()
+
+
 class RetentionScheduleIn(StrictModel):
     cutoff_at: datetime
     execute_after: datetime

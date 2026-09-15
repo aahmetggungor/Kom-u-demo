@@ -27,6 +27,8 @@ C:\Users\rog\Documents\Codex\2026-09-14\files-mentioned-by-the-user-ahmet\output
 
 ## Prompt 2 — Transkripsiyon işçisi ve insan incelemesi
 
+Durum: **COMPLETED (2026-09-15)** — RELEASED kapısı, kalıcı lease/retry kuyruğu, kaynak HMAC/model provenance, açık model-unavailable sonucu, üç dilli insan düzeltme paneli ve PostgreSQL RLS doğrulandı. Gerçek scanner ile Yunanca/gürültülü insan sesi ölçümü dış bağımlılıktır.
+
 ```text
 Komşu reposunda güncel PROJECT_STATUS.md, REQUIREMENTS.md ve son commit'i oku. Yalnız serbest bırakılmış sesin transkripsiyon iş akışını tamamla. Worker lease/retry/idempotency kurallarını kullan; doğrulanmış yerel Whisper modelini yalnız RELEASED durumundaki ses için çağır. Transcript, dil, model revision, checksum/provenance, confidence/uyarı ve hata durumlarını sakla. Özgün ses ve transcript korunmalı; düşük güven otomatik karar üretmemeli. Yunanca model yolu eksikse açık UNAVAILABLE sonucu ver. Web vaka detayına yalnız yetkili kullanıcı için ses metadata, transcript ve insan düzeltme alanı ekle; ham ses indirme ekleme. API/DB/worker/web testlerini, bozuk ses/model yok/retry/tenant izolasyonu senaryolarını çalıştır. Tamamlanan kanıtları belgele, commit oluştur ve Prompt 3 için eksikleri yaz.
 ```

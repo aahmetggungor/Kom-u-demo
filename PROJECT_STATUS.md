@@ -8,8 +8,8 @@ Updated: 2026-09-15. Controlled development foundation, not production ready.
 - Architecture with context/container/component diagrams; threat model; nine ADRs and official-source research notes.
 - FastAPI ingestion, source preservation, expiring/revocable hashed opaque sessions, role/tenant boundaries, durable jobs, worker lease recovery and claim fencing, conservative TR/EL/EN rules baseline.
 - Human case review and location confirmation; versioned dispatch with team checks and transactional audit/events.
-- PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0006 applied; runtime non-superuser RLS and spatial trigger tested.
-- 84 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio isolation, and reviewed retention. Latest run 2026-09-15.
+- PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0008 applied; runtime non-superuser RLS and spatial trigger tested.
+- 88 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-15.
 - React/MapLibre dashboard builds; six coordinate/localisation tests pass; npm audit reported zero vulnerabilities at installation.
 - Browser login and live event connection verified; 12 synthetic reports displayed. Expired demo token correctly rejected after session interruption and rotated with unchanged scope.
 - API and migration Docker images build successfully; Compose API and PostgreSQL are healthy. Restart retained synthetic data.
@@ -35,16 +35,17 @@ Updated: 2026-09-15. Controlled development foundation, not production ready.
 - Dashboard chrome, filters, case detail, human review, regrouping, semantic warnings and map controls can be switched between Turkish, Greek and English. The preference contains no case data or credential and is stored locally; message language remains independent.
 - Authenticated raw-WAV attachment endpoint enforces MIME, 2 MB, 16 kHz/16-bit/mono, 0.2–30 second and speech-energy bounds before storing. HKDF-separated AES-GCM encryption and keyed replay digest protect one quarantined attachment per report; plaintext/ciphertext never appears in API responses. Tenant RLS, role checks, replay/conflict, tamper failure and retention deletion are tested.
 - Local `AudioScanner` boundary revalidates decrypted WAV in memory and persists fixed clean/malicious/invalid/error codes without exception text. Scan failures remain closed; only clean scan-passed audio can be released, by a different admin/coordinator from the uploader. Versioned decision replay, conflicting PostgreSQL release races, audit/events and tenant isolation are tested. No real malware engine is configured.
+- Released audio creates one durable, tenant-scoped transcription job. The lease-fenced worker decrypts only after claim, calls the local byte-based Whisper adapter, stores source HMAC provenance/model/language/warnings, and records fixed terminal integrity/model-unavailable states without content in logs. Machine text remains separate from versioned admin/coordinator corrections and is visible in the three-language case panel; raw audio is never downloadable. Tests cover release gating, retry, missing model, tampering, correction permissions/idempotency and real PostgreSQL RLS.
 
 - Container scanning completed; vendor-fixed OS issues patched and pip removed from final runtime images. PostgreSQL 17.11 retained all 12 demo reports; the full Python suite passes after the upgrade. Remaining OS/gosu findings are recorded in docs/security/CONTAINER_SCAN.md, not suppressed.
-- Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine and 0006 adds scan/release state. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
+- Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine, 0006 scan/release state, and 0007/0008 durable transcript jobs/provenance. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Transcript rows cascade with retained audio deletion. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
 - A 192,131-byte logical backup was restored to a separate local database and migrated from 0002 to 0004; runtime auth, RLS, 12 demo reports/embeddings and semantic retrieval passed. This is same-host restore evidence, not HA/offsite DR.
 
 ## IN PROGRESS
-- Released-audio transcription worker and operational scanner integration. Model evaluation remains deliberately gated by real multilingual and field data.
+- Android and development-web short voice recording/upload flow. Model evaluation remains deliberately gated by real multilingual and field data.
 
 ## NEXT
-- Transcription worker and review UI; Greek/noisy human transcription validation; live geocoder/municipal data integration; central monitoring; relay key distribution/radio implementation and physical-device validation.
+- Android/web recording and offline upload; Greek/noisy human transcription validation; live geocoder/municipal data integration; central monitoring; relay key distribution/radio implementation and physical-device validation.
 
 ## BLOCKERS
 - No hard infrastructure blocker currently. Docker Desktop was started; Windows localhost/IPv6 connection issue avoided using 127.0.0.1 and explicit connection timeout.
@@ -56,10 +57,10 @@ Updated: 2026-09-15. Controlled development foundation, not production ready.
 - AI error and wrong location can harm rescue; no autonomous dispatch permitted.
 
 ## TECHNICAL DEBT
-- Semantic suggestions and human merge/split UI work locally; embeddings support bounded batch and a continuous local polling worker. Translation is optional and disabled by default because diagnostics show critical omissions. Transcription has a bounded local adapter, encrypted quarantine and scan/release state machine, but no real scanner process or automated transcript attachment. Geocoder adapter is optional and fixture-tested; no external provider is active.
+- Semantic suggestions and human merge/split UI work locally; embeddings support bounded batch and a continuous local polling worker. Translation is optional and disabled by default because diagnostics show critical omissions. Transcription attachment and human correction work, but the worker needs separately installed model weights/process supervision and there is no real scanner process. Geocoder adapter is optional and fixture-tested; no external provider is active.
 - Web UI has TR/EL/EN controls; rescue wording still requires native-speaker review. Messages retain their original language. Map has point overlay and an explicit unconfigured-base-map notice. Admin GIS import and layer toggles support bounded Point/LineString data with provenance; four synthetic layers loaded.
 - FastAPI test client dependency emits two deprecation warnings; tests still pass. Deferred MapLibre chunk remains about 1.02 MB raw. Android has dependency/deprecation warnings; lint has no errors.
 - Relay policy, authenticated encryption/signature primitives and persistent Room custody are implemented and emulator-tested. No organization key distribution, actual radio transport or physical A→B→C validation is claimed.
 - Per-process in-memory request quota is development-only; shared gateway quotas, OIDC/MFA, offsite restore/HA, backup and device-cache re-purge, legal approval and OTLP exporter are pilot gates.
-- The recorded restore drill ends at migration 0004; a fresh backup/restore drill including 0005/0006 encrypted audio state remains required.
+- The recorded restore drill ends at migration 0004; a fresh backup/restore drill including 0005–0008 encrypted audio/transcript state remains required.
 - Demo credentials expire after eight hours; ignored .env.session.json stores the local token. No source-control secrets.

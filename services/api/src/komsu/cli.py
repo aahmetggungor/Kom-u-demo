@@ -50,6 +50,9 @@ def main():
     worker_parser = sub.add_parser("worker")
     worker_parser.add_argument("--tenant", default=os.environ.get("KOMSU_WORKER_TENANT"))
     worker_parser.add_argument("--once", action="store_true")
+    transcription_parser = sub.add_parser("transcription-worker")
+    transcription_parser.add_argument("--tenant", default=os.environ.get("KOMSU_WORKER_TENANT"))
+    transcription_parser.add_argument("--once", action="store_true")
     retention_parser = sub.add_parser("execute-retention")
     retention_parser.add_argument("--plan", required=True)
     retention_parser.add_argument("--confirm", required=True)
@@ -74,6 +77,35 @@ def main():
             print("processed" if process_one(engine, args.tenant) else "queue empty")
         else:
             run(engine, args.tenant)
+    elif args.command == "transcription-worker":
+        if not args.tenant:
+            raise SystemExit("Explicit --tenant or KOMSU_WORKER_TENANT is required")
+        settings = Settings()
+        if not settings.audio_master_key_b64:
+            raise SystemExit("KOMSU_AUDIO_MASTER_KEY_B64 is required")
+        from .transcription import LocalWhisperTranscriber
+        from .transcription_worker import (
+            UnavailableTranscriber,
+            process_one_transcription,
+            run,
+        )
+
+        engine = make_engine(settings.database_url)
+        transcriber = (
+            LocalWhisperTranscriber(settings.whisper_model_dir, "data/audio.synthetic")
+            if settings.whisper_model_dir
+            else UnavailableTranscriber()
+        )
+        if args.once:
+            print(
+                "processed"
+                if process_one_transcription(
+                    engine, args.tenant, transcriber, settings.audio_master_key_b64
+                )
+                else "queue empty"
+            )
+        else:
+            run(engine, args.tenant, transcriber, settings.audio_master_key_b64)
     elif args.command == "execute-retention":
         from .retention import execute
 

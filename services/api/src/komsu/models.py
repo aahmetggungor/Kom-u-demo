@@ -176,6 +176,44 @@ class AudioAsset(Base):
     )
 
 
+class AudioTranscript(Base):
+    __tablename__ = "audio_transcripts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    tenant_id: Mapped[str] = mapped_column(String(36), index=True)
+    audio_asset_id: Mapped[str] = mapped_column(ForeignKey("audio_assets.id", ondelete="CASCADE"))
+    report_id: Mapped[str] = mapped_column(String(36))
+    state: Mapped[str] = mapped_column(String(24), default="QUEUED")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    claim_id: Mapped[str | None] = mapped_column(String(36))
+    available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    original_text: Mapped[str | None] = mapped_column(Text)
+    language: Mapped[str | None] = mapped_column(String(8))
+    model_revision: Mapped[str | None] = mapped_column(String(200))
+    duration_seconds: Mapped[float | None] = mapped_column(Float)
+    confidence: Mapped[float | None] = mapped_column(Float)
+    source_audio_hmac: Mapped[str | None] = mapped_column(String(64))
+    warnings: Mapped[list] = mapped_column(JSON, default=list)
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    corrected_text: Mapped[str | None] = mapped_column(Text)
+    corrected_language: Mapped[str | None] = mapped_column(String(8))
+    corrected_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    correction_reason: Mapped[str | None] = mapped_column(String(500))
+    corrected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (
+        ForeignKeyConstraint(["tenant_id", "report_id"], ["reports.tenant_id", "reports.id"]),
+        UniqueConstraint("tenant_id", "audio_asset_id"),
+        CheckConstraint("state IN ('QUEUED','RUNNING','DONE','FAILED')"),
+        CheckConstraint("attempts BETWEEN 0 AND 3"),
+        CheckConstraint("version >= 1"),
+        CheckConstraint("confidence IS NULL OR confidence BETWEEN 0 AND 1"),
+        Index("ix_audio_transcripts_claim", "tenant_id", "state", "available_at"),
+    )
+
+
 class Job(Base):
     __tablename__ = "jobs"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)

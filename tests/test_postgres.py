@@ -16,7 +16,7 @@ from komsu.app import create_app
 from komsu.cli import provision
 from komsu.config import Settings
 from komsu.db import make_engine, tenant_session
-from komsu.models import AudioAsset, Audit, Case
+from komsu.models import AudioAsset, AudioTranscript, Audit, Case
 from komsu.worker import process_one
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
@@ -356,7 +356,9 @@ def test_postgres_rls_auth_and_fail_closed(pg):
 
 
 def test_postgres_audio_scan_release_is_tenant_scoped_and_race_safe(pg):
+    from komsu.ai import TranscriptionOutput
     from komsu.audio_scanning import ScanOutcome, ScanVerdict, scan_audio_asset
+    from komsu.transcription_worker import process_one_transcription
 
     engine, client, uploader, other = pg
     item, _ = pg_report(pg)
@@ -415,6 +417,35 @@ def test_postgres_audio_scan_release_is_tenant_scoped_and_race_safe(pg):
     assert detail["audio"]["state"] == "RELEASED"
     assert detail["audio"]["scan_verdict"] == "CLEAN"
     assert "ciphertext" not in detail["audio"]
+
+    class Transcriber:
+        def transcribe_bytes(self, payload, language_hint=None):
+            assert payload.startswith(b"RIFF")
+            return TranscriptionOutput(
+                "Synthetic PostgreSQL transcript",
+                language_hint or "und",
+                "postgres-fake-whisper-v1",
+                0.25,
+                (),
+            )
+
+    assert process_one_transcription(
+        engine,
+        uploader["tenant_id"],
+        Transcriber(),
+        settings.audio_master_key_b64,
+    )
+    detail = client.get(f"/api/v1/reports/{item['report_id']}", headers=headers(uploader)).json()
+    assert detail["transcript"]["state"] == "DONE"
+    assert detail["transcript"]["original_text"] == "Synthetic PostgreSQL transcript"
+    assert "CONFIDENCE_UNAVAILABLE" in detail["transcript"]["warnings"]
+    with tenant_session(engine, other["tenant_id"]) as session:
+        assert (
+            session.scalar(
+                select(AudioTranscript).where(AudioTranscript.report_id == item["report_id"])
+            )
+            is None
+        )
 
 
 def test_postgres_ingestion_concurrency_and_worker(pg):

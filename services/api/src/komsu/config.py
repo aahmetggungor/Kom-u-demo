@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     geocoder_url: str | None = None
     embedding_revision: str | None = Field(default=None, max_length=160)
     translation_model_dir: str | None = Field(default=None, max_length=500)
+    whisper_model_dir: str | None = Field(default=None, max_length=500)
     worker_metrics_port: int | None = Field(default=None, ge=1024, le=65535)
 
     def validate_runtime(self) -> None:

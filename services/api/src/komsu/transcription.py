@@ -7,6 +7,7 @@ import sys
 import wave
 from array import array
 from copy import deepcopy
+from io import BytesIO
 from pathlib import Path
 
 from .ai import TranscriptionOutput
@@ -46,14 +47,11 @@ class LocalWhisperTranscriber:
         self._processor = None
         self._model = None
 
-    def _audio(self, value: str | Path):
-        path = Path(value).resolve()
-        if self.audio_root not in path.parents or not path.is_file():
-            raise AudioRejected("Audio path is outside the approved local root")
-        if path.suffix.casefold() != ".wav" or path.stat().st_size > 2_000_000:
+    def _audio_bytes(self, payload: bytes):
+        if not payload or len(payload) > 2_000_000:
             raise AudioRejected("Only bounded WAV input is accepted")
         try:
-            with wave.open(str(path), "rb") as stream:
+            with wave.open(BytesIO(payload), "rb") as stream:
                 if (
                     stream.getnchannels() != 1
                     or stream.getsampwidth() != 2
@@ -80,6 +78,14 @@ class LocalWhisperTranscriber:
 
         audio = np.asarray(samples, dtype="float32") / 32768.0
         return audio, duration
+
+    def _audio(self, value: str | Path):
+        path = Path(value).resolve()
+        if self.audio_root not in path.parents or not path.is_file():
+            raise AudioRejected("Audio path is outside the approved local root")
+        if path.suffix.casefold() != ".wav" or path.stat().st_size > 2_000_000:
+            raise AudioRejected("Only bounded WAV input is accepted")
+        return self._audio_bytes(path.read_bytes())
 
     def _load(self):
         if self._model is not None:
@@ -110,6 +116,17 @@ class LocalWhisperTranscriber:
         if language_hint is not None and language_hint not in LANGUAGES:
             raise AudioRejected("Language hint must be tr, el or en")
         audio, duration = self._audio(approved_local_audio)
+        return self._transcribe_audio(audio, duration, language_hint)
+
+    def transcribe_bytes(
+        self, approved_audio: bytes, language_hint: str | None = None
+    ) -> TranscriptionOutput:
+        if language_hint is not None and language_hint not in LANGUAGES:
+            raise AudioRejected("Language hint must be tr, el or en")
+        audio, duration = self._audio_bytes(approved_audio)
+        return self._transcribe_audio(audio, duration, language_hint)
+
+    def _transcribe_audio(self, audio, duration, language_hint):
         import torch
 
         processor, model = self._load()

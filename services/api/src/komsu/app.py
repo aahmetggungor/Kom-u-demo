@@ -30,7 +30,17 @@ from .db import make_engine, tenant_session
 from .domain import audit, dispatch, get_case, ingest, review, serialize_tenant
 from .grouping import merge, split
 from .map_layers import LayerIn
-from .models import AudioAsset, Case, Event, LegalHold, MapLayer, Report, RetentionPlan, Team
+from .models import (
+    AudioAsset,
+    AudioTranscript,
+    Case,
+    Event,
+    LegalHold,
+    MapLayer,
+    Report,
+    RetentionPlan,
+    Team,
+)
 from .retention import approve as approve_retention
 from .retention import cancel as cancel_retention
 from .retention import create_hold, hold_json, plan_json, release_hold
@@ -50,8 +60,10 @@ from .schemas import (
     ReviewIn,
     SplitIn,
     TeamIn,
+    TranscriptReviewIn,
 )
 from .security import Principal, authenticate, require_role
+from .transcription_worker import review_transcript, transcript_json
 
 logger = logging.getLogger("komsu")
 bearer = HTTPBearer(auto_error=False)
@@ -84,7 +96,7 @@ def case_json(session, case):
     }
 
 
-def report_json(report, audio=None):
+def report_json(report, audio=None, transcript=None):
     result = {
         "id": report.id,
         "client_id": report.client_id,
@@ -99,6 +111,7 @@ def report_json(report, audio=None):
         "created_at": report.created_at.isoformat(),
     }
     result["audio"] = audio_json(audio) if audio else None
+    result["transcript"] = transcript_json(transcript)
     return result
 
 
@@ -189,7 +202,7 @@ def create_app(settings: Settings | None = None, engine=None):
         try:
             with engine.connect() as conn:
                 revision = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            if revision != "0006":
+            if revision != "0008":
                 raise ValueError("migration mismatch")
         except (SQLAlchemyError, ValueError):
             raise HTTPException(503, "Database/schema not ready") from None
@@ -322,6 +335,14 @@ def create_app(settings: Settings | None = None, engine=None):
             asset, replayed = decide_audio(session, actor, str(report_id), payload)
             return audio_json(asset, replayed)
 
+    @app.post("/api/v1/reports/{report_id}/audio/transcript/review")
+    def audio_transcript_review(
+        report_id: UUID, payload: TranscriptReviewIn, actor: Principal = Depends(principal)
+    ):
+        with tenant_session(engine, actor.tenant_id) as session:
+            row, replayed = review_transcript(session, actor, str(report_id), payload)
+            return {**transcript_json(row), "replayed": replayed}
+
     @app.get("/api/v1/reports/{report_id}")
     def report_detail(report_id: UUID, actor: Principal = Depends(principal)):
         with tenant_session(engine, actor.tenant_id) as session:
@@ -337,7 +358,13 @@ def create_app(settings: Settings | None = None, engine=None):
                     AudioAsset.tenant_id == actor.tenant_id, AudioAsset.report_id == report.id
                 )
             )
-            return report_json(report, audio)
+            transcript = session.scalar(
+                select(AudioTranscript).where(
+                    AudioTranscript.tenant_id == actor.tenant_id,
+                    AudioTranscript.report_id == report.id,
+                )
+            )
+            return report_json(report, audio, transcript)
 
     @app.get("/api/v1/cases")
     def cases(
@@ -420,8 +447,26 @@ def create_app(settings: Settings | None = None, engine=None):
                 if reports
                 else {}
             )
+            transcripts_by_report = (
+                {
+                    row.report_id: row
+                    for row in session.scalars(
+                        select(AudioTranscript).where(
+                            AudioTranscript.tenant_id == actor.tenant_id,
+                            AudioTranscript.report_id.in_([report.id for report in reports]),
+                        )
+                    ).all()
+                }
+                if reports
+                else {}
+            )
             result["reports"] = [
-                report_json(report, audio_by_report.get(report.id)) for report in reports
+                report_json(
+                    report,
+                    audio_by_report.get(report.id),
+                    transcripts_by_report.get(report.id),
+                )
+                for report in reports
             ]
             return result
 

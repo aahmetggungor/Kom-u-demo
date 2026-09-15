@@ -14,7 +14,7 @@ from sqlalchemy import select
 
 from .audio_storage import AudioIntegrityError, AudioRejected, decrypt_audio, validate_pcm_wav
 from .domain import audit, emit, serialize_tenant
-from .models import AudioAsset, Case, Report, utcnow
+from .models import AudioAsset, AudioTranscript, Case, Report, utcnow
 from .schemas import AudioDecisionIn
 from .security import Principal, require_role
 
@@ -157,6 +157,15 @@ def decide_audio(
     asset.decision_reason = request.reason
     asset.decided_at = utcnow()
     asset.version += 1
+    if target_state == "RELEASED":
+        session.add(
+            AudioTranscript(
+                tenant_id=actor.tenant_id,
+                audio_asset_id=asset.id,
+                report_id=asset.report_id,
+                state="QUEUED",
+            )
+        )
     audit(
         session,
         actor,
