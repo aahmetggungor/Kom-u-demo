@@ -1,10 +1,56 @@
 {
+  "pipeline_version": "rules-0.1",
   "original_language": "tr",
+  "needs": [
+    "rescue",
+    "water"
+  ],
+  "urgency_level": "CRITICAL",
+  "incident_type": "unknown",
+  "ai_confidence": 0.35,
+  "human_review_required": true,
+  "stages": {
+    "language": "heuristic",
+    "transcription": "not_applicable_text",
+    "normalization": "completed",
+    "classification": "heuristic",
+    "ner": "not_configured",
+    "geocoding": "not_configured",
+    "translation": "complete",
+    "duplicate": "proposal_only"
+  },
+  "warnings": [
+    "UNCALIBRATED_BASELINE",
+    "HUMAN_REVIEW_REQUIRED",
+    "NEGATION_REQUIRES_REVIEW",
+    "TRANSLATION_PROTECTED_ADDRESS_RECOVERED_el",
+    "TRANSLATION_PROTECTED_NUMBER_RECOVERED_el",
+    "TRANSLATION_PROTECTED_NEGATED_CLAUSE_RECOVERED_el",
+    "TRANSLATION_EN_PIVOT_el",
+    "TRANSLATION_NEGATION_NOT_DETECTED_IN_OUTPUT_el",
+    "TRANSLATION_PROTECTED_ADDRESS_RECOVERED_en",
+    "TRANSLATION_PROTECTED_NUMBER_RECOVERED_en",
+    "TRANSLATION_PROTECTED_NEGATED_CLAUSE_RECOVERED_en"
+  ],
+  "location_candidates": [],
+  "normalized_text": "alsancak 1462 sokak no 8, enkaz altında 3 kişi var. su gerekmiyor.",
   "translated_text": {
-    "el": "Υπάρχουν τρία άτομα κάτω από τα ερείπια στην οδό 1462.",
-    "en": "There's three people under the rubble at 1462 Street."
+    "el": "Υπάρχουν τρία άτομα κάτω από τα ερείπια στην οδό 1462. ⟦Alsancak 1462 Sokak No 8⟧ ⟦3⟧ ⟦Su gerekmiyor.⟧",
+    "en": "There's three people under the rubble at 1462 Street. ⟦Alsancak 1462 Sokak No 8⟧ ⟦3⟧ ⟦Su gerekmiyor.⟧"
   },
   "translation_status": "COMPLETE",
+  "urgency_score": 0.9,
+  "people_count": 3,
+  "possible_trapped_people": true,
+  "medical_need": false,
+  "address_raw": null,
+  "location": {
+    "lat": null,
+    "lon": null,
+    "confidence": 0.0
+  },
+  "location_status": "AMBIGUOUS_LOCATION",
+  "duplicate_cluster_id": null,
   "translation_provenance": {
     "el": {
       "route": [
@@ -17,8 +63,17 @@
         "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
       ],
       "pivoted": true,
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "disaster_term",
+        "number",
+        "negated_clause"
+      ],
       "warnings": [
-        "NUMERALS_CHANGED_OR_DROPPED",
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NUMBER_RECOVERED",
+        "PROTECTED_NEGATED_CLAUSE_RECOVERED",
         "NEGATION_NOT_DETECTED_IN_OUTPUT"
       ]
     },
@@ -31,32 +86,18 @@
         "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902"
       ],
       "pivoted": false,
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "disaster_term",
+        "number",
+        "negated_clause"
+      ],
       "warnings": [
-        "NUMERALS_CHANGED_OR_DROPPED",
-        "NEGATION_NOT_DETECTED_IN_OUTPUT"
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NUMBER_RECOVERED",
+        "PROTECTED_NEGATED_CLAUSE_RECOVERED"
       ]
     }
-  },
-  "warnings": [
-    "UNCALIBRATED_BASELINE",
-    "HUMAN_REVIEW_REQUIRED",
-    "NEGATION_REQUIRES_REVIEW",
-    "TRANSLATION_EN_PIVOT_el",
-    "TRANSLATION_NUMERALS_CHANGED_OR_DROPPED_el",
-    "TRANSLATION_NEGATION_NOT_DETECTED_IN_OUTPUT_el",
-    "TRANSLATION_NUMERALS_CHANGED_OR_DROPPED_en",
-    "TRANSLATION_NEGATION_NOT_DETECTED_IN_OUTPUT_en"
-  ],
-  "stages": {
-    "language": "heuristic",
-    "transcription": "not_applicable_text",
-    "normalization": "completed",
-    "classification": "heuristic",
-    "ner": "not_configured",
-    "geocoding": "not_configured",
-    "translation": "complete",
-    "duplicate": "proposal_only"
-  },
-  "human_review_required": true,
-  "seconds": 8.909
+  }
 }

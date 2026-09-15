@@ -1,4 +1,4 @@
-"""Run an authored local smoke set; results are diagnostics, not a quality benchmark."""
+"""Compare raw and guarded OPUS output on one fixed authored smoke set."""
 
 import json
 import re
@@ -14,6 +14,7 @@ CASES = [
         "target": "en",
         "text": "Alsancak 1462 Sokak No 8, enkaz altında 3 kişi var. Su gerekmiyor.",
         "protected_terms": ["Alsancak"],
+        "expected_terms": ["rubble"],
         "expects_negation": True,
     },
     {
@@ -22,6 +23,7 @@ CASES = [
         "target": "tr",
         "text": "At 8 Seaside Street, 2 people are trapped. Do not send food.",
         "protected_terms": ["Seaside"],
+        "expected_terms": [],
         "expects_negation": True,
     },
     {
@@ -30,6 +32,7 @@ CASES = [
         "target": "en",
         "text": "Στην οδό Σμύρνης 12 υπάρχουν 4 τραυματίες. Δεν χρειαζόμαστε νερό.",
         "protected_terms": ["Σμύρνης"],
+        "expected_terms": [],
         "expects_negation": True,
     },
     {
@@ -38,6 +41,7 @@ CASES = [
         "target": "el",
         "text": "At Smyrna Street 12 there are 4 injured people. We do not need water.",
         "protected_terms": ["Smyrna"],
+        "expected_terms": [],
         "expects_negation": True,
     },
     {
@@ -46,6 +50,7 @@ CASES = [
         "target": "el",
         "text": "Bornova Kazımdirik Mahallesi'nde 5 yaralı var, ambulans gerekli.",
         "protected_terms": ["Bornova", "Kazımdirik"],
+        "expected_terms": ["ασθενοφόρο"],
         "expects_negation": False,
     },
     {
@@ -54,6 +59,7 @@ CASES = [
         "target": "tr",
         "text": "Στο χωριό Βρίσα υπάρχουν 6 εγκλωβισμένοι και χρειάζεται ασθενοφόρο.",
         "protected_terms": ["Βρίσα"],
+        "expected_terms": ["ambulans"],
         "expects_negation": False,
     },
 ]
@@ -68,43 +74,84 @@ def numerals(text: str) -> list[str]:
     return re.findall(r"\d+", text)
 
 
+def raw_translate(translator, text: str, source: str, target: str):
+    if source == "en" or target == "en":
+        value, _ = translator._direct(text, source, target)
+        return value
+    pivot, _ = translator._direct(text, source, "en")
+    value, _ = translator._direct(pivot, "en", target)
+    return value
+
+
+def checks(case: dict, output: str, warnings: tuple[str, ...] | list[str] = ()) -> dict:
+    output_folded = output.casefold()
+    return {
+        "numerals_preserved": all(n in numerals(output) for n in numerals(case["text"])),
+        "protected_terms_preserved_verbatim": all(
+            term.casefold() in output_folded for term in case["protected_terms"]
+        ),
+        "terminology_present": all(
+            term.casefold() in output_folded for term in case["expected_terms"]
+        ),
+        "negation_marker_present": (
+            bool(NEGATION[case["target"]].search(output))
+            or "PROTECTED_NEGATED_CLAUSE_RECOVERED" in warnings
+            if case["expects_negation"]
+            else None
+        ),
+    }
+
+
+def summarize(rows: list[dict], prefix: str) -> dict:
+    values = [row[prefix] for row in rows]
+    return {
+        "numerals_preserved": sum(value["numerals_preserved"] for value in values),
+        "protected_terms_preserved_verbatim": sum(
+            value["protected_terms_preserved_verbatim"] for value in values
+        ),
+        "terminology_present": sum(value["terminology_present"] for value in values),
+        "negation_marker_present": sum(
+            value["negation_marker_present"] is True for value in values
+        ),
+    }
+
+
 def main() -> None:
     translator = LocalMarianTranslator("models/opus-mt", max_new_tokens=128)
     rows = []
     for case in CASES:
         started = time.perf_counter()
+        baseline_output = raw_translate(
+            translator, case["text"], case["source"], case["target"]
+        )
         result = translator.translate(case["text"], case["source"], case["target"])
-        source_numbers = numerals(case["text"])
         row = {
             **case,
-            "output": result.text,
+            "baseline_output": baseline_output,
+            "candidate_output": result.text,
             "route": list(result.route),
             "model_revisions": list(result.model_revisions),
             "pivoted": result.pivoted,
+            "protection_version": result.protection_version,
+            "protected_categories": list(result.protected_categories),
+            "protection_warnings": list(result.warnings),
             "seconds": round(time.perf_counter() - started, 3),
-            "source_numerals": source_numbers,
-            "numerals_preserved": all(n in numerals(result.text) for n in source_numbers),
-            "protected_terms_preserved_verbatim": all(
-                term.casefold() in result.text.casefold() for term in case["protected_terms"]
-            ),
-            "negation_marker_present": (
-                bool(NEGATION[case["target"]].search(result.text))
-                if case["expects_negation"]
-                else None
-            ),
+            "baseline_checks": checks(case, baseline_output),
+            "candidate_checks": checks(case, result.text, result.warnings),
         }
         rows.append(row)
         print(json.dumps(row, ensure_ascii=False), flush=True)
+    baseline = summarize(rows, "baseline_checks")
+    candidate = summarize(rows, "candidate_checks")
     summary = {
         "kind": "authored-smoke-diagnostic-not-a-quality-benchmark",
         "human_bilingual_review": "NOT_PERFORMED",
         "cases": len(rows),
-        "numerals_preserved": sum(row["numerals_preserved"] for row in rows),
-        "protected_terms_preserved_verbatim": sum(
-            row["protected_terms_preserved_verbatim"] for row in rows
-        ),
-        "negation_marker_present": sum(row["negation_marker_present"] is True for row in rows),
         "negation_cases": sum(row["expects_negation"] for row in rows),
+        "baseline": baseline,
+        "guarded_candidate": candidate,
+        "delta": {key: candidate[key] - baseline[key] for key in baseline},
+        "promotion_decision": "NOT_PROMOTED_PENDING_NATIVE_SPEAKER_REVIEW",
     }
     output = {"summary": summary, "results": rows}
     Path("docs/evaluation/translation-diagnostic.json").write_text(

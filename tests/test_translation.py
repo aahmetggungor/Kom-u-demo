@@ -1,7 +1,11 @@
 import json
 
 import pytest
-from komsu.translation import LocalMarianTranslator
+from komsu.translation import (
+    LocalMarianTranslator,
+    protect_translation_text,
+    restore_translation_text,
+)
 
 
 def manifest(tmp_path):
@@ -68,3 +72,36 @@ def test_weight_digest_is_checked_before_model_loader_import(tmp_path):
     translator = LocalMarianTranslator(tmp_path)
     with pytest.raises(ValueError, match="SHA-256"):
         translator._load("tr-en")
+
+
+def test_protection_registry_recovers_numbers_names_negation_and_terms():
+    protected = protect_translation_text(
+        "Alsancak 1462 Sokak No 8, enkaz altında 3 kişi var. Su gerekmiyor.",
+        "tr",
+        "en",
+    )
+    output, warnings, categories = restore_translation_text(
+        "There are people under the rubble at 1462 Street.", protected
+    )
+    assert output.endswith("⟦Alsancak 1462 Sokak No 8⟧ ⟦3⟧ ⟦Su gerekmiyor.⟧")
+    assert "PROTECTED_NUMBER_RECOVERED" in warnings
+    assert set(categories) == {"address", "number", "disaster_term", "negated_clause"}
+
+
+def test_guarded_direct_keeps_model_sentence_and_records_recovery(tmp_path, monkeypatch):
+    manifest(tmp_path)
+    translator = LocalMarianTranslator(tmp_path)
+    monkeypatch.setattr(
+        translator,
+        "_direct",
+        lambda text, source, target: ("There are people under rubble.", "model@revision"),
+    )
+    result = translator.translate("Enkaz altında 3 kişi var.", "tr", "en")
+    assert result.text == "There are people under rubble. ⟦3⟧"
+    assert result.protection_version == "placeholder-terminology-1"
+    assert result.warnings == ("PROTECTED_NUMBER_RECOVERED",)
+
+
+def test_english_address_number_is_not_treated_as_negation():
+    protected = protect_translation_text("No 8, 3 people need help.", "en", "el")
+    assert "negated_clause" not in {item[2] for item in protected.replacements}

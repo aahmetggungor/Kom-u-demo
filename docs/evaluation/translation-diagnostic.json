@@ -3,10 +3,26 @@
     "kind": "authored-smoke-diagnostic-not-a-quality-benchmark",
     "human_bilingual_review": "NOT_PERFORMED",
     "cases": 6,
-    "numerals_preserved": 3,
-    "protected_terms_preserved_verbatim": 0,
-    "negation_marker_present": 1,
-    "negation_cases": 4
+    "negation_cases": 4,
+    "baseline": {
+      "numerals_preserved": 3,
+      "protected_terms_preserved_verbatim": 0,
+      "terminology_present": 6,
+      "negation_marker_present": 1
+    },
+    "guarded_candidate": {
+      "numerals_preserved": 6,
+      "protected_terms_preserved_verbatim": 6,
+      "terminology_present": 6,
+      "negation_marker_present": 4
+    },
+    "delta": {
+      "numerals_preserved": 3,
+      "protected_terms_preserved_verbatim": 6,
+      "terminology_present": 0,
+      "negation_marker_present": 3
+    },
+    "promotion_decision": "NOT_PROMOTED_PENDING_NATIVE_SPEAKER_REVIEW"
   },
   "results": [
     {
@@ -17,8 +33,12 @@
       "protected_terms": [
         "Alsancak"
       ],
+      "expected_terms": [
+        "rubble"
+      ],
       "expects_negation": true,
-      "output": "There's three people under the rubble at 1462 Street.",
+      "baseline_output": "There's three people under the rubble at 1462 Street.",
+      "candidate_output": "There's three people under the rubble at 1462 Street. ⟦Alsancak 1462 Sokak No 8⟧ ⟦3⟧ ⟦Su gerekmiyor.⟧",
       "route": [
         "tr",
         "en"
@@ -27,15 +47,31 @@
         "Helsinki-NLP/opus-mt-tr-en@19c65427cc2af5f191337d4899e0348c4af25902"
       ],
       "pivoted": false,
-      "seconds": 7.129,
-      "source_numerals": [
-        "1462",
-        "8",
-        "3"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "disaster_term",
+        "number",
+        "negated_clause"
       ],
-      "numerals_preserved": false,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": false
+      "protection_warnings": [
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NUMBER_RECOVERED",
+        "PROTECTED_NEGATED_CLAUSE_RECOVERED"
+      ],
+      "seconds": 6.1,
+      "baseline_checks": {
+        "numerals_preserved": false,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": false
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": true
+      }
     },
     {
       "id": "en-tr-negation-address",
@@ -45,8 +81,10 @@
       "protected_terms": [
         "Seaside"
       ],
+      "expected_terms": [],
       "expects_negation": true,
-      "output": "8 Seade Caddesi'nde, 2 kişi kısıldı.",
+      "baseline_output": "8 Seade Caddesi'nde, 2 kişi kısıldı.",
+      "candidate_output": "8 Seade Caddesi'nde, 2 kişi kısıldı. ⟦At 8 Seaside Street⟧ ⟦Do not send food.⟧",
       "route": [
         "en",
         "tr"
@@ -55,14 +93,29 @@
         "Helsinki-NLP/opus-mt-en-trk@f9d8f6cd9d95d2f8ce34943c1f6cfe610d3bbf92"
       ],
       "pivoted": false,
-      "seconds": 1.583,
-      "source_numerals": [
-        "8",
-        "2"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "number",
+        "negated_clause"
       ],
-      "numerals_preserved": true,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": false
+      "protection_warnings": [
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NEGATED_CLAUSE_RECOVERED"
+      ],
+      "seconds": 1.8,
+      "baseline_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": false
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": true
+      }
     },
     {
       "id": "el-en-negation-address",
@@ -72,8 +125,10 @@
       "protected_terms": [
         "Σμύρνης"
       ],
+      "expected_terms": [],
       "expects_negation": true,
-      "output": "At 12 Smyrni Street there are 4 injured.",
+      "baseline_output": "At 12 Smyrni Street there are 4 injured.",
+      "candidate_output": "At 12 Smyrni Street there are 4 injured. ⟦οδό Σμύρνης 12⟧ ⟦Δεν χρειαζόμαστε νερό.⟧",
       "route": [
         "el",
         "en"
@@ -82,14 +137,29 @@
         "Helsinki-NLP/opus-mt_tiny_ell-eng@beff0d92479a72deff22f722ab28efa81d2ac8a9"
       ],
       "pivoted": false,
-      "seconds": 0.806,
-      "source_numerals": [
-        "12",
-        "4"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "number",
+        "negated_clause"
       ],
-      "numerals_preserved": true,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": false
+      "protection_warnings": [
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NEGATED_CLAUSE_RECOVERED"
+      ],
+      "seconds": 0.712,
+      "baseline_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": false
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": true
+      }
     },
     {
       "id": "en-el-negation-address",
@@ -99,8 +169,10 @@
       "protected_terms": [
         "Smyrna"
       ],
+      "expected_terms": [],
       "expects_negation": true,
-      "output": "Στην οδό Σμύρνη 12 υπάρχουν 4 τραυματίες, δεν χρειαζόμαστε νερό.",
+      "baseline_output": "Στην οδό Σμύρνη 12 υπάρχουν 4 τραυματίες, δεν χρειαζόμαστε νερό.",
+      "candidate_output": "Στην οδό Σμύρνη 12 υπάρχουν 4 τραυματίες, δεν χρειαζόμαστε νερό. ⟦Smyrna⟧",
       "route": [
         "en",
         "el"
@@ -109,14 +181,28 @@
         "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
       ],
       "pivoted": false,
-      "seconds": 1.741,
-      "source_numerals": [
-        "12",
-        "4"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "name_or_place",
+        "number",
+        "negated_clause"
       ],
-      "numerals_preserved": true,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": true
+      "protection_warnings": [
+        "PROTECTED_NAME_OR_PLACE_RECOVERED"
+      ],
+      "seconds": 1.936,
+      "baseline_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": true
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": true
+      }
     },
     {
       "id": "tr-el-pivot-count",
@@ -127,8 +213,12 @@
         "Bornova",
         "Kazımdirik"
       ],
+      "expected_terms": [
+        "ασθενοφόρο"
+      ],
       "expects_negation": false,
-      "output": "Πέντε τραυματίες στη γειτονιά Μπόρνοβα Καζίμντρικ, χρειάζονται ασθενοφόρο.",
+      "baseline_output": "Πέντε τραυματίες στη γειτονιά Μπόρνοβα Καζίμντρικ, χρειάζονται ασθενοφόρο.",
+      "candidate_output": "Πέντε τραυματίες στη γειτονιά Μπόρνοβα Καζίμντρικ, χρειάζονται ασθενοφόρο. ⟦Bornova Kazımdirik Mahallesi⟧ ⟦5⟧",
       "route": [
         "tr",
         "en",
@@ -139,13 +229,29 @@
         "Helsinki-NLP/opus-mt-en-el@1653673990e6f1e3baf0a903f38e231730704444"
       ],
       "pivoted": true,
-      "seconds": 2.072,
-      "source_numerals": [
-        "5"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "number",
+        "disaster_term"
       ],
-      "numerals_preserved": false,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": null
+      "protection_warnings": [
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NUMBER_RECOVERED"
+      ],
+      "seconds": 2.279,
+      "baseline_checks": {
+        "numerals_preserved": false,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": null
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": null
+      }
     },
     {
       "id": "el-tr-pivot-count",
@@ -155,8 +261,12 @@
       "protected_terms": [
         "Βρίσα"
       ],
+      "expected_terms": [
+        "ambulans"
+      ],
       "expects_negation": false,
-      "output": "Vries köyünde altı ambulansa ihtiyacı var.",
+      "baseline_output": "Vries köyünde altı ambulansa ihtiyacı var.",
+      "candidate_output": "Vries köyünde altı ambulansa ihtiyacı var. ⟦χωριό Βρίσα⟧ ⟦6⟧",
       "route": [
         "el",
         "en",
@@ -167,13 +277,29 @@
         "Helsinki-NLP/opus-mt-en-trk@f9d8f6cd9d95d2f8ce34943c1f6cfe610d3bbf92"
       ],
       "pivoted": true,
-      "seconds": 2.213,
-      "source_numerals": [
-        "6"
+      "protection_version": "placeholder-terminology-1",
+      "protected_categories": [
+        "address",
+        "number",
+        "disaster_term"
       ],
-      "numerals_preserved": false,
-      "protected_terms_preserved_verbatim": false,
-      "negation_marker_present": null
+      "protection_warnings": [
+        "PROTECTED_ADDRESS_RECOVERED",
+        "PROTECTED_NUMBER_RECOVERED"
+      ],
+      "seconds": 2.429,
+      "baseline_checks": {
+        "numerals_preserved": false,
+        "protected_terms_preserved_verbatim": false,
+        "terminology_present": true,
+        "negation_marker_present": null
+      },
+      "candidate_checks": {
+        "numerals_preserved": true,
+        "protected_terms_preserved_verbatim": true,
+        "terminology_present": true,
+        "negation_marker_present": null
+      }
     }
   ]
 }

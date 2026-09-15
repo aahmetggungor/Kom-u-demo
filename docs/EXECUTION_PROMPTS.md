@@ -1,16 +1,16 @@
 # Komşu — tamamlanmaya kadar Codex çalışma promptları
 
-Güncelleme: 2026-09-15. Başlangıç commit'i: `17f217b`.
+Güncelleme: 2026-09-16. Başlangıç commit'i: `17f217b`.
 
 Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabilir parçaya böler. Promptları sırayla, tercihen ayrı Codex görevlerinde kullanın. Bir aşama başarısızsa sonraki aşamaya geçmeden aynı görevde yalnız hatayı düzeltin. Mock, fixture veya sentetik veriyle geçen kontrol gerçek kurum, saha ya da üretim doğrulaması olarak yazılmamalıdır.
 
 ## Güncel başlangıç noktası
 
-- Kontrollü sunum demosu: yaklaşık `%90`.
-- Uzun gereksinim kapsamı: yaklaşık `%62`.
+- Kontrollü sunum demosu: yaklaşık `%91`.
+- Uzun gereksinim kapsamı: yaklaşık `%64`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
-- Bilinen kalite sınırları: sınıflandırma ihtiyaç recall `0.50`, semantic recall@1 `0.0`, kritik çeviri kayıpları ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
+- Bilinen kalite sınırları: deployed sınıflandırma holdout ihtiyaç recall `0.267`, semantic recall@1 `0.0`, anadili değerlendirmesi olmayan çeviri ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
 - Dış bağımlılıklar: anadili konuşan değerlendiriciler, gerçek kurtarma sesleri, belediye GIS/geocoder erişimi, mesaj sağlayıcıları, üç fiziksel Android cihaz, hukuk/kurum onayı ve pilot altyapısı.
 
 ## Kullanım kuralı
@@ -50,6 +50,8 @@ Komşu reposunda AI değerlendirme belgelerini ve mevcut sentetik/zorlayıcı ve
 ```
 
 ## Prompt 5 — Çeviri güvenilirliği ve anadili konuşan inceleme paketi
+
+Durum: **COMPLETED (2026-09-16)** — model cümlesini bozmayan sayı/ad/olumsuzluk/terim sonkoşulu, görünür kurtarma işaretleri, provenance uyarıları, aynı sabit sette ham/adayı karşılaştırma ve değiştirilmesi algılanan PII-free CSV/JSON insan inceleme paketi tamamlandı. Aday, anadili konuşan yeterlilik ve kritik hata değerlendirmesi beklediği için varsayılan yapılmadı.
 
 ```text
 Komşu reposunda translation adapter, provenance ve diagnostic sonuçlarını oku. Yalnız TR-EL-EN çeviri güvenilirliğini geliştir. Sayı, adres, kişi/yer adı, olumsuzluk ve afet terimlerini koruyan placeholder/terminoloji katmanı ekle; özgün metni daima görünür tut. Model/pivot/yön ve uyarıları sakla. Mevcut OPUS modellerini aynı sabit veri setinde yeniden ölç; iyileşme ölçülmeden varsayılan davranışı yükseltme. Anadili konuşanların çevrimdışı değerlendirebileceği, kişisel veri içermeyen CSV/JSON değerlendirme paketi ve içe aktarma aracı üret. Çeviri hiçbir şekilde sınıflandırma, birleştirme veya sevki tek başına belirlemesin. Testleri çalıştır, belgeleri güncelle, commit oluştur; insan değerlendirmesi bekleyen alanları açıkça listele.

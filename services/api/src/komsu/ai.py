@@ -57,6 +57,9 @@ class TranslationOutput:
     route: tuple[str, ...]
     model_revisions: tuple[str, ...]
     pivoted: bool
+    warnings: tuple[str, ...] = ()
+    protection_version: str | None = None
+    protected_categories: tuple[str, ...] = ()
 
 
 class Translator(Protocol):

@@ -10,7 +10,7 @@ from .geolocation import Candidate, Geocoder, GeocoderUnavailable, location_anno
 NEGATIONS = {
     "tr": re.compile(r"\b(değil|yok|gerekmi(?:yor|z)|gönderme(?:yin)?)\b", re.I),
     "el": re.compile(r"\b(δεν|όχι|μην|χωρίς)\b", re.I),
-    "en": re.compile(r"\b(no|not|don't|doesn't|do not|without|unnecessary)\b", re.I),
+    "en": re.compile(r"\b(not|don't|doesn't|do not|without|unnecessary)\b|\bno\b(?!\s*\d)", re.I),
 }
 
 
@@ -87,12 +87,18 @@ class Pipeline:
                         text, result["original_language"], target
                     )
                     metadata = None
+                    adapter_warnings: tuple[str, ...] = ()
                     if isinstance(translated, TranslationOutput):
+                        adapter_warnings = translated.warnings
                         metadata = {
                             "route": list(translated.route),
                             "model_revisions": list(translated.model_revisions),
                             "pivoted": translated.pivoted,
+                            "protection_version": translated.protection_version,
+                            "protected_categories": list(translated.protected_categories),
                         }
+                        for warning in adapter_warnings:
+                            result["warnings"].append(f"TRANSLATION_{warning}_{target}")
                         if translated.pivoted:
                             result["warnings"].append(f"TRANSLATION_EN_PIVOT_{target}")
                         translated = translated.text
@@ -109,7 +115,9 @@ class Pipeline:
                     for warning in guardrail_warnings:
                         result["warnings"].append(f"TRANSLATION_{warning}_{target}")
                     if metadata is not None:
-                        metadata["warnings"] = guardrail_warnings
+                        metadata["warnings"] = list(
+                            dict.fromkeys((*adapter_warnings, *guardrail_warnings))
+                        )
                         provenance[target] = metadata
                 except Exception:
                     result["warnings"].append(f"TRANSLATION_UNAVAILABLE_{target}")
