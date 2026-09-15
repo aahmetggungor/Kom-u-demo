@@ -6,8 +6,8 @@ Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabi
 
 ## Güncel başlangıç noktası
 
-- Kontrollü sunum demosu: yaklaşık `%92`.
-- Uzun gereksinim kapsamı: yaklaşık `%66`.
+- Kontrollü sunum demosu: yaklaşık `%93`.
+- Uzun gereksinim kapsamı: yaklaşık `%68`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
 - Bilinen kalite sınırları: deployed sınıflandırma holdout ihtiyaç recall `0.267`, semantic recall@1 `0.0`, anadili değerlendirmesi olmayan çeviri ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
@@ -66,6 +66,8 @@ Komşu reposunda semantic değerlendirmeleri, merge/split akışını ve bge-m3 
 ```
 
 ## Prompt 7 — Konum çıkarımı ve kurumsal geocoder
+
+Durum: **COMPLETED (2026-09-16)** — public OSM engeli, timeout/retry/pacing/cache/circuit breaker, bounded yanıt, veri minimizasyonu ve insan onayı sınırı tamamlandı. 12 PII-free TR/EL/EN fixture localhost contract sunucusunda geçti; canlı kurum URL/kimliği ve gerçek gold set onboarding dış bağımlılığıdır.
 
 ```text
 Komşu reposunda geolocation adapter, güvenlik notları ve harita bileşenlerini oku. Yalnız güvenli konum aday üretimini tamamla. TR/EL adres, mahalle, sokak, landmark ve yazım hataları için gold test seti oluştur; koordinat uydurmama kuralını koru. Kurumun self-host geocoder servisi için timeout, retry, cache, rate limit, circuit breaker, provenance ve veri minimizasyonu ekle. Public Nominatim'e gerçek rapor gönderme. Canlı kurum URL/kimlik bilgisi yoksa contract server ile doğrula ve `docs/operations/GEOCODER_ONBOARDING.md` veri talep listesini oluştur; canlı entegrasyon iddiasında bulunma. Adaylar insan onayı olmadan vaka konumunu değiştirmesin. Testleri çalıştır, belgeleri güncelle, commit oluştur.

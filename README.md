@@ -140,7 +140,7 @@ Halka açık Nominatim afet akışına bağlanmaz; kişisel/confidential veri g�
 
 Model adapter'ları local-only ağırlık yükler; gizli download veya vendor API yoktur. Baseline konum uydurmaz. Çeviri paketi yapılandırılmadığında çeviri `UNAVAILABLE` kalır; yapılandırıldığında model sürümü/yol/pivot, koruma kategorileri ve geri kazanım uyarıları kaydedilir. Eksik kritik değerler model cümlesine gizlenmeden `⟦…⟧` olarak görünür; özgün metin hemen üstte kalır. Sentetik fixture doğruluğu gerçek afet doğruluğu değildir.
 
-İsteğe bağlı `KOMSU_GEOCODER_URL`, kendi kurumunuzun Nominatim adresini worker'a verir; varsayılan kapalıdır. Aday seçimi web formunu doldurur, onay veya sevk yapmaz. Canlı sağlayıcı bu geliştirme ortamında denenmedi.
+İsteğe bağlı `KOMSU_GEOCODER_URL`, kurumun Nominatim-uyumlu HTTPS adresini worker'a verir; varsayılan kapalıdır. Public OpenStreetMap Nominatim reddedilir. Adapter timeout, bounded retry/backoff, hız sınırı, tenant ayrımlı bir saatlik cache, circuit breaker ve 64 KiB/five-candidate şema sınırı uygular; yalnız açık adres alanı ve dil gönderilir. Aday seçimi web formunu doldurur, onay veya sevk yapmaz. Canlı sağlayıcı bu geliştirme ortamında denenmedi; [kurum onboarding gereksinimleri](docs/operations/GEOCODER_ONBOARDING.md) ve [sentetik contract kanıtı](docs/evaluation/GEOCODER.md) ayrıdır.
 
 Admin `POST /api/v1/map/layers` ile `kind`, `name`, `provenance` ve sınırlı `geojson` FeatureCollection yükleyebilir. İlk sürüm Point/LineString, en fazla 200 feature/1000 koordinat ve 32 KiB istek kabul eder; uzaktan URL veya ikon yüklemez. Katmanlar haritada açılıp kapanır, kaynak ve yükleme zamanı görünür. `python scripts/seed_gis_demo.py` yalnız sentetik örnekleri yerel demo kurumuna ekler; gerçek tesis/yol bilgisi değildir.
 

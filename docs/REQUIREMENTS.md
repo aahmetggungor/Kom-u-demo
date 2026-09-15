@@ -19,7 +19,7 @@ Durum: **BACKLOG** henüz doğrulanmadı, **PARTIAL** sınırlı uygulama, **VER
 | KOMSU-FUNC-003 | s.2 Listen | Türkçe, Yunanca, İngilizce mesajlar | Her dil için ingestion/NLP testi | BACKLOG |
 | KOMSU-FUNC-004 | s.2; s.3 şema | Kısa sesleri otomatik metne çevirme; Whisper | Şifreli karantina, fail-closed scanner protokolü, iki kullanıcı ayrımlı release, kalıcı transcript worker/provenance ve insan düzeltmesi; gerçek scanner ve saha ses doğrulaması eksik | PARTIAL |
 | KOMSU-FUNC-005 | s.2 Understand; s.3 | Mahsur, sağlık, barınak, su ihtiyaçları ve aciliyet sınıflandırması; model karşılaştırması | Dil/sınıf/hata türü ölçümü ve guarded rules + char-TFIDF/logistic adayları var; bağımsız etiketli saha seti eksik | PARTIAL |
-| KOMSU-FUNC-006 | s.2–3 | Serbest TR/EL adres ve konum çıkarımı; NER + OSM geocoding önceliği | Adres gold set, belirsizlik testi, mesafe hatası | PARTIAL |
+| KOMSU-FUNC-006 | s.2–3 | Serbest TR/EL adres ve konum çıkarımı; NER + OSM geocoding önceliği | 12 sentetik TR/EL/EN contract gold fixture; canlı kurum gold seti eksik | PARTIAL |
 | KOMSU-FUNC-007 | s.2 Merge; s.3 | bge-m3 sentence embeddings ile aynı olayı gruplama | Açıklanabilir çok sinyalli insan inceleme adayı; cross-language ve ayrı bina testleri | PARTIAL |
 | KOMSU-FUNC-008 | s.2 Merge | Binlerce tekrar için tek vaka/pin ve rapor sayacı | Tekrarlı veri seti, count ve map API testi | PARTIAL |
 | KOMSU-FUNC-009 | s.2 Share | Ortak canlı harita; kullanıcının dilinde vaka; özgün mesaj tek etkileşimle | Web uçtan uca test | PARTIAL |
@@ -48,7 +48,7 @@ PDF'de daha dar geçen özelliklerin aşağıdaki ayrıntıları PDF'ye atfedilm
 | KOMSU-EXT-001 | 2,26 | Manuel giriş; adapter izolasyonu; versioned OpenAPI; pagination/filter/sort | PARTIAL |
 | KOMSU-EXT-002 | 3,4 | Dil, transcription, normalization, taxonomy, urgency, NER, geocoding, duplicate, translation, confidence, review, case resolution aşamaları; her alan için provenance ve failure | PARTIAL |
 | KOMSU-EXT-003 | 5 | Semantic/location/time/entity skorları; güvenli eşik, human merge/split override | PARTIAL |
-| KOMSU-EXT-004 | 6 | Landmark, mahalle/sokak/ilçe/şehir, fuzzy candidate ranking; AMBIGUOUS_LOCATION, koordinat uydurmama | PARTIAL |
+| KOMSU-EXT-004 | 6 | Landmark, mahalle/sokak/ilçe/şehir, fuzzy candidate ranking; AMBIGUOUS_LOCATION, koordinat uydurmama | Contract fixture ve insan onayı sınırı IMPLEMENTED; canlı kalite PARTIAL |
 | KOMSU-EXT-005 | 7,30 | Urgency/type/verification/language/time/region/team/status filtreleri; ekip katmanı; erişilebilir detay paneli; renk tek işaret değil | PARTIAL |
 | KOMSU-EXT-006 | 8,16 | Durable queue, idempotent workers, outbox, backpressure, batching ve 10/100/1000/10000 msg/s kapasite senaryoları | PARTIAL |
 | KOMSU-EXT-007 | 9,15 | Tenant/user/membership/role/device/report/case/team/dispatch/history/audit/spatial/vector tabloları; migration ve ERD | IMPLEMENTED |
@@ -84,7 +84,7 @@ IMPLEMENTED, ilgili geliştirme davranışının kod ve yerel kontrollerle göst
 | Android offline | Room queue/cache/custody yeniden açma ve v1→v2→v3 migration; tenant-scoped report/audio claim fencing; 30 saniye PCM kayıt/izin kullanıcı akışı; 6 app + 7 relay unit, 6 emülatör testi | Fiziksel mikrofon/uçak modu, kurum anahtarı dağıtımı ve gerçek relay radyo/A→B→C test yok |
 | AI / değerlendirme | 3000 train şablonu, 18 development ve 36 authored holdout sınıflandırma örneği; guarded rules ve char-TFIDF/logistic karşılaştırması; 240 mesaj semantic stress ve 360 mesaj çok sinyalli duplicate split; OPUS-MT; Whisper | Deployed ihtiyaç recall holdout 0.267; semantic recall@1 0.0; çok sinyalli sentetik test 1.0 fakat kolay adres/konum fixture'ı nedeniyle terfi edilmedi; çeviri insan değerlendirmesi bekliyor; Whisper TTS WER 0.3793 |
 | Yük ölçümü | scripts/benchmark_local.py, docs/evaluation/local-benchmark.json: 30 rapor, 6 istemci, tek worker | Küçük yerel burst; sürdürülebilir kapasite/SLO ölçümü değil |
-| Kalite / güvenlik | Toplam 98 Python testi (9 gerçek PG); Python lint, pip-audit ve Bandit; web build/11 test; Android build/lint, 13 unit ve 6 emülatör testi; encrypted audio, sınıflandırma, duplicate ve çeviri güvenlik dilimleri | Uzak CI çalışmadı; gerçek scanner, bağımsız etiket/native review, fiziksel mikrofon/saha sesi, hukuk onayı ve pentest eksik |
+| Kalite / güvenlik | Toplam 100 Python testi (9 gerçek PG); Python lint, pip-audit ve Bandit; web build/11 test; Android build/lint, 13 unit ve 6 emülatör testi; encrypted audio, sınıflandırma, duplicate, geocoder ve çeviri güvenlik dilimleri | Uzak CI çalışmadı; gerçek scanner, bağımsız etiket/native review, fiziksel mikrofon/saha sesi, hukuk onayı ve pentest eksik |
 | Worker gözlemlenebilirliği | Sabit etiketli sonuç sayacı; analiz/iş/kuyruk bekleme histogramları; depth/oldest gauge; localhost opt-in endpoint; PII'siz JSON completion log | Embedding alt-batch sayaçları PostgreSQL kısmi hata/tekrar testiyle doğrulandı; merkezi scrape/dashboard/alert/OTLP yok |
 | Mimari / hukuk / işletim | docs/architecture, docs/security, docs/adr, docs/research, README, ROADMAP | Retention icrası, hukuk onayı, gerçek kurum pilotu tamamlanmadı |
 

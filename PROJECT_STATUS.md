@@ -9,7 +9,7 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - FastAPI ingestion, source preservation, expiring/revocable hashed opaque sessions, role/tenant boundaries, durable jobs, worker lease recovery and claim fencing, conservative TR/EL/EN rules baseline.
 - Human case review and location confirmation; versioned dispatch with team checks and transactional audit/events.
 - PostgreSQL/PostGIS/pgvector Docker image built and running; Alembic migrations through 0008 applied; runtime non-superuser RLS and spatial trigger tested.
-- 98 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-16.
+- 100 Python tests passed in the full suite, including 9 real PostgreSQL tests: concurrent dispatch/merge/audio release (one 200, one 409), split, RLS, append-only audit, semantic/audio/transcript isolation, and reviewed retention. Latest run 2026-09-16.
 - React/MapLibre dashboard builds; eleven coordinate/localisation/audio tests pass; npm audit reported zero vulnerabilities at installation.
 - Browser login and live event connection verified; 12 synthetic reports displayed. Expired demo token correctly rejected after session interruption and rotated with unchanged scope.
 - API and migration Docker images build successfully; Compose API and PostgreSQL are healthy. Restart retained synthetic data.
@@ -17,7 +17,7 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Android project, Gradle wrapper, Compose screens, Room schema/queue, WorkManager, encrypted token storage, tenant-scoped cache/queue and relay protocol code written.
 - Android debug APK, lint, six app unit tests, seven relay/crypto tests and six Room instrumentation tests passed on Pixel 7 / Android 14 emulator. Relay custody and report/audio queues survive database reopen; ECDSA/AES-GCM tampering is rejected; Room v1→v2→v3 preserves queued reports and adds tenant-scoped audio custody; interrupted sync claims remain pending through lease expiry.
 - Browser human review and synthetic dispatch completed; logout and 390px viewport checked without horizontal overflow. Login bundle reduced to 238 kB raw by deferred MapLibre loading.
-- Optional self-hosted geocoder candidate adapter and review-only candidate UI, channel normalization/HMAC helpers and validated pipeline implemented with fixture tests; no live gateway/geocoder configured.
+- Optional institutional/self-hosted geocoder has timeout, bounded retry/backoff, per-process pacing, tenant-scoped cache, circuit breaker, bounded schema validation and public OSM rejection. A localhost contract server and 12 PII-free TR/EL/EN address/landmark/typo fixtures passed exactly; candidates remain review-only and no live gateway/geocoder is configured.
 - GIS import requires admin and validates bounds/types/feature limits; tenant isolation tested. Production web build visually verified with 12 case points and synthetic hospital/road layers. Fixed MapLibre CSS sizing and bundled the v6 worker with Vite ?worker&url.
 - Local HTTP benchmark: 30 reports, 6 clients, all processed; acknowledgement p95 79.783 ms. Small baseline-only burst, not a capacity guarantee.
 - pip-audit requirements scan: no known vulnerabilities; Bandit: no medium/high findings in the current Python source. These are bounded scans, not a security certification.
@@ -45,10 +45,10 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - A 192,131-byte logical backup was restored to a separate local database and migrated from 0002 to 0004; runtime auth, RLS, 12 demo reports/embeddings and semantic retrieval passed. This is same-host restore evidence, not HA/offsite DR.
 
 ## IN PROGRESS
-- Safe institutional geocoder onboarding and location candidate quality. Model evaluation remains deliberately gated by independently labelled multilingual and field data.
+- Institutional map tiles and municipal GIS package validation. Live integrations remain gated by institution-supplied services and licensed data.
 
 ## NEXT
-- Safe institutional geocoder onboarding and location candidate quality; Greek/noisy human transcription validation; municipal data integration; central monitoring; relay key distribution/radio implementation and physical-device validation.
+- Institutional map tiles and municipal GIS package validation; Greek/noisy human transcription validation; central monitoring; relay key distribution/radio implementation and physical-device validation.
 
 ## BLOCKERS
 - No hard infrastructure blocker currently. Docker Desktop was started; Windows localhost/IPv6 connection issue avoided using 127.0.0.1 and explicit connection timeout.

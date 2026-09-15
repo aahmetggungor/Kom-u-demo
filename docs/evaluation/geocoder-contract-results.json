@@ -1,0 +1,178 @@
+{
+  "kind": "synthetic-localhost-contract-not-live-geocoder-validation",
+  "overall": {
+    "cases": 12,
+    "top1_accuracy": 1.0,
+    "precision_accuracy": 1.0,
+    "median_error_m": 0.0,
+    "unresolved_fraction": 0.0
+  },
+  "by_language": {
+    "tr": {
+      "cases": 4,
+      "top1_accuracy": 1.0,
+      "precision_accuracy": 1.0,
+      "median_error_m": 0.0,
+      "unresolved_fraction": 0.0
+    },
+    "el": {
+      "cases": 4,
+      "top1_accuracy": 1.0,
+      "precision_accuracy": 1.0,
+      "median_error_m": 0.0,
+      "unresolved_fraction": 0.0
+    },
+    "en": {
+      "cases": 4,
+      "top1_accuracy": 1.0,
+      "precision_accuracy": 1.0,
+      "median_error_m": 0.0,
+      "unresolved_fraction": 0.0
+    }
+  },
+  "results": [
+    {
+      "id": "tr-building-exact",
+      "language": "tr",
+      "tags": [
+        "mahalle",
+        "sokak",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "tr-building-typo",
+      "language": "tr",
+      "tags": [
+        "typo",
+        "abbreviation",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "tr-landmark",
+      "language": "tr",
+      "tags": [
+        "landmark"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "tr-street",
+      "language": "tr",
+      "tags": [
+        "street"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "el-building-exact",
+      "language": "el",
+      "tags": [
+        "street",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "el-building-typo",
+      "language": "el",
+      "tags": [
+        "typo",
+        "diacritics",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "el-landmark",
+      "language": "el",
+      "tags": [
+        "landmark"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "el-area",
+      "language": "el",
+      "tags": [
+        "area"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "en-building-exact",
+      "language": "en",
+      "tags": [
+        "street",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "CANDIDATE_REQUIRES_REVIEW"
+    },
+    {
+      "id": "en-building-typo",
+      "language": "en",
+      "tags": [
+        "typo",
+        "abbreviation",
+        "building"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "en-landmark",
+      "language": "en",
+      "tags": [
+        "landmark"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    },
+    {
+      "id": "en-street",
+      "language": "en",
+      "tags": [
+        "street"
+      ],
+      "top1_provider_correct": true,
+      "precision_correct": true,
+      "error_m": 0.0,
+      "location_status": "AMBIGUOUS_LOCATION"
+    }
+  ],
+  "limitations": "Queries map exactly to authored contract fixtures, including authored typo aliases. No municipal index, network SLA, real ambiguity or field address accuracy is measured."
+}
