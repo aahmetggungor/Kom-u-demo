@@ -1,0 +1,2574 @@
+{
+  "kind": "authored_synthetic_candidate_comparison_not_independent_validation",
+  "default_runtime_analyzer": "rules-0.1",
+  "default_changed": false,
+  "decision": "NO_CHANGE_PENDING_INDEPENDENT_NATIVE_SPEAKER_FIELD_VALIDATION",
+  "safety_thresholds": {
+    "overall_precision_min": 0.85,
+    "overall_recall_min": 0.85,
+    "per_language_recall_min": 0.8,
+    "rescue_medical_recall_min": 0.9,
+    "urgency_accuracy_min": 0.85,
+    "numbered_critical_false_negatives_max": 0
+  },
+  "data": {
+    "training": {
+      "path": "data\\disaster.synthetic.jsonl",
+      "sha256": "434bf3ac06ec3717d63c88eafae34aaf7871066eab60c3df17e65a052aedd0fb",
+      "rows": 2400
+    },
+    "internal_validation": {
+      "rows": 600
+    },
+    "development": {
+      "path": "data\\challenge.synthetic.jsonl",
+      "sha256": "45e2c845b593fca67fcce826c33a2bde7268e8af5efde22a7de02e463bae3a71",
+      "rows": 18
+    },
+    "authored_holdout": {
+      "path": "data\\classification-holdout.synthetic.jsonl",
+      "sha256": "34f53cc2b3470323530fd407d996a7db3af27f62471041c7114066ab43296e5d",
+      "rows": 36
+    },
+    "split_rule": "gold.group numeric suffix modulo 5; all TR/EL/EN event variants stay together"
+  },
+  "model_provenance": {
+    "library": "scikit-learn",
+    "version": "1.9.1",
+    "features": "character TF-IDF word-boundary 3..5 grams; max_features=30000",
+    "classifier": "per-need class-balanced LogisticRegression random_state=42",
+    "threshold_selected_on_development_only": 0.4,
+    "remote_inference": false
+  },
+  "results": {
+    "rules-0.1": {
+      "development": {
+        "overall": {
+          "samples": 18,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.5,
+          "need_f1_micro": 0.5454545454545454,
+          "need_false_negative_rate": 0.5,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.5,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 3,
+              "fp": 3,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 3,
+              "fp": 3,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3,
+              "precision": null,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 6,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.5,
+          "need_f1_micro": 0.5454545454545454,
+          "need_false_negative_rate": 0.5,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.5,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "el": {
+          "samples": 6,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.5,
+          "need_f1_micro": 0.5454545454545454,
+          "need_false_negative_rate": 0.5,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.5,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "en": {
+          "samples": 6,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.5,
+          "need_f1_micro": 0.5454545454545454,
+          "need_false_negative_rate": 0.5,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.5,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "tr-dev-01",
+            "language": "tr",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "tr-dev-02",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-dev-03",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-dev-04",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-dev-01",
+            "language": "en",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "en-dev-02",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-dev-03",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-dev-04",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-dev-01",
+            "language": "el",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-dev-02",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-dev-03",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-dev-04",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          }
+        ],
+        "by_error_tag": {
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "explicit": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "implicit": {
+            "samples": 9,
+            "incorrect_rows": 9,
+            "false_positives": 0,
+            "false_negatives": 9,
+            "urgency_errors": 6
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 3,
+            "urgency_errors": 0
+          },
+          "negation": {
+            "samples": 6,
+            "incorrect_rows": 3,
+            "false_positives": 6,
+            "false_negatives": 0,
+            "urgency_errors": 3
+          },
+          "number": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          }
+        }
+      },
+      "authored_holdout": {
+        "overall": {
+          "samples": 36,
+          "need_precision_micro": 0.5714285714285714,
+          "need_recall_micro": 0.26666666666666666,
+          "need_f1_micro": 0.36363636363636365,
+          "need_false_negative_rate": 0.7333333333333333,
+          "need_exact_match": 0.3055555555555556,
+          "urgency_accuracy": 0.3888888888888889,
+          "critical_urgency_false_negatives": 6,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 3,
+              "fn": 6,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 5,
+              "precision": 0.5,
+              "recall": 0.16666666666666666
+            },
+            "shelter": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 4,
+              "fp": 2,
+              "fn": 2,
+              "precision": 0.6666666666666666,
+              "recall": 0.6666666666666666
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 12,
+          "need_precision_micro": 0.75,
+          "need_recall_micro": 0.3,
+          "need_f1_micro": 0.42857142857142855,
+          "need_false_negative_rate": 0.7,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.4166666666666667,
+          "critical_urgency_false_negatives": 2,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "el": {
+          "samples": 12,
+          "need_precision_micro": 0.5,
+          "need_recall_micro": 0.3,
+          "need_f1_micro": 0.375,
+          "need_false_negative_rate": 0.7,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.4166666666666667,
+          "critical_urgency_false_negatives": 2,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 2,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.6666666666666666,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "en": {
+          "samples": 12,
+          "need_precision_micro": 0.5,
+          "need_recall_micro": 0.2,
+          "need_f1_micro": 0.2857142857142857,
+          "need_false_negative_rate": 0.8,
+          "need_exact_match": 0.25,
+          "urgency_accuracy": 0.3333333333333333,
+          "critical_urgency_false_negatives": 2,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.5,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "tr-01",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-03",
+            "language": "tr",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "tr-05",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-06",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-07",
+            "language": "tr",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "tr-10",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-11",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-12",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-01",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-02",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-03",
+            "language": "en",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "en-05",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-06",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-07",
+            "language": "en",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-10",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-11",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-12",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-01",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-02",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-03",
+            "language": "el",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-06",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-07",
+            "language": "el",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-10",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-11",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-12",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          }
+        ],
+        "by_error_tag": {
+          "ambiguous": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "implicit": {
+            "samples": 24,
+            "incorrect_rows": 19,
+            "false_positives": 2,
+            "false_negatives": 19,
+            "urgency_errors": 19
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 3,
+            "urgency_errors": 0
+          },
+          "negation": {
+            "samples": 9,
+            "incorrect_rows": 3,
+            "false_positives": 4,
+            "false_negatives": 0,
+            "urgency_errors": 3
+          },
+          "number": {
+            "samples": 9,
+            "incorrect_rows": 7,
+            "false_positives": 0,
+            "false_negatives": 7,
+            "urgency_errors": 7
+          }
+        }
+      }
+    },
+    "rules-0.2-candidate": {
+      "development": {
+        "overall": {
+          "samples": 18,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 6,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "el": {
+          "samples": 6,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "en": {
+          "samples": 6,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "failures": [],
+        "by_error_tag": {
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "explicit": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "implicit": {
+            "samples": 9,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "negation": {
+            "samples": 6,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "number": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          }
+        }
+      },
+      "authored_holdout": {
+        "overall": {
+          "samples": 36,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 12,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "el": {
+          "samples": 12,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "en": {
+          "samples": 12,
+          "need_precision_micro": 1.0,
+          "need_recall_micro": 1.0,
+          "need_f1_micro": 1.0,
+          "need_false_negative_rate": 0.0,
+          "need_exact_match": 1.0,
+          "urgency_accuracy": 1.0,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            }
+          }
+        },
+        "failures": [],
+        "by_error_tag": {
+          "ambiguous": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "implicit": {
+            "samples": 24,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "negation": {
+            "samples": 9,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "number": {
+            "samples": 9,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          }
+        }
+      }
+    },
+    "char-tfidf-logistic-candidate": {
+      "development": {
+        "overall": {
+          "samples": 18,
+          "need_precision_micro": 0.5,
+          "need_recall_micro": 0.3333333333333333,
+          "need_f1_micro": 0.4,
+          "need_false_negative_rate": 0.6666666666666666,
+          "need_exact_match": 0.1111111111111111,
+          "urgency_accuracy": 0.3333333333333333,
+          "critical_urgency_false_negatives": 1,
+          "per_need": {
+            "rescue": {
+              "tp": 2,
+              "fp": 2,
+              "fn": 1,
+              "precision": 0.5,
+              "recall": 0.6666666666666666
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 2,
+              "fn": 2,
+              "precision": 0.3333333333333333,
+              "recall": 0.3333333333333333
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 2,
+              "fn": 3,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 6,
+          "need_precision_micro": 0.5,
+          "need_recall_micro": 0.16666666666666666,
+          "need_f1_micro": 0.25,
+          "need_false_negative_rate": 0.8333333333333334,
+          "need_exact_match": 0.16666666666666666,
+          "urgency_accuracy": 0.16666666666666666,
+          "critical_urgency_false_negatives": 1,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "el": {
+          "samples": 6,
+          "need_precision_micro": 0.4,
+          "need_recall_micro": 0.3333333333333333,
+          "need_f1_micro": 0.36363636363636365,
+          "need_false_negative_rate": 0.6666666666666666,
+          "need_exact_match": 0.0,
+          "urgency_accuracy": 0.3333333333333333,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "en": {
+          "samples": 6,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.5,
+          "need_f1_micro": 0.5454545454545454,
+          "need_false_negative_rate": 0.5,
+          "need_exact_match": 0.16666666666666666,
+          "urgency_accuracy": 0.5,
+          "critical_urgency_false_negatives": 0,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "water": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 0,
+              "precision": 1.0,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "tr-dev-01",
+            "language": "tr",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "HIGH"
+          },
+          {
+            "id": "tr-dev-02",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-dev-03",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-dev-04",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-dev-05",
+            "language": "tr",
+            "tags": [
+              "explicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue",
+              "medical"
+            ],
+            "actual_needs": [
+              "medical"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "HIGH"
+          },
+          {
+            "id": "en-dev-01",
+            "language": "en",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "en-dev-03",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-dev-04",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-dev-05",
+            "language": "en",
+            "tags": [
+              "explicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue",
+              "medical"
+            ],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "en-dev-06",
+            "language": "en",
+            "tags": [
+              "ended_exercise",
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "shelter"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-dev-01",
+            "language": "el",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-dev-02",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-dev-03",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-dev-04",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-dev-05",
+            "language": "el",
+            "tags": [
+              "explicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue",
+              "medical"
+            ],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-dev-06",
+            "language": "el",
+            "tags": [
+              "ended_exercise",
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "shelter"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "MEDIUM"
+          }
+        ],
+        "by_error_tag": {
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 2,
+            "false_positives": 2,
+            "false_negatives": 0,
+            "urgency_errors": 2
+          },
+          "explicit": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 3,
+            "urgency_errors": 1
+          },
+          "implicit": {
+            "samples": 9,
+            "incorrect_rows": 8,
+            "false_positives": 0,
+            "false_negatives": 9,
+            "urgency_errors": 6
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 4,
+            "urgency_errors": 1
+          },
+          "negation": {
+            "samples": 6,
+            "incorrect_rows": 5,
+            "false_positives": 6,
+            "false_negatives": 0,
+            "urgency_errors": 5
+          },
+          "number": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 3,
+            "urgency_errors": 1
+          }
+        }
+      },
+      "authored_holdout": {
+        "overall": {
+          "samples": 36,
+          "need_precision_micro": 0.5,
+          "need_recall_micro": 0.3333333333333333,
+          "need_f1_micro": 0.4,
+          "need_false_negative_rate": 0.6666666666666666,
+          "need_exact_match": 0.3055555555555556,
+          "urgency_accuracy": 0.3888888888888889,
+          "critical_urgency_false_negatives": 5,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 6,
+              "fn": 5,
+              "precision": 0.14285714285714285,
+              "recall": 0.16666666666666666
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 5,
+              "precision": 0.5,
+              "recall": 0.16666666666666666
+            },
+            "shelter": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 3,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 5,
+              "fp": 3,
+              "fn": 1,
+              "precision": 0.625,
+              "recall": 0.8333333333333334
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "tr": {
+          "samples": 12,
+          "need_precision_micro": 0.5714285714285714,
+          "need_recall_micro": 0.4,
+          "need_f1_micro": 0.47058823529411764,
+          "need_false_negative_rate": 0.6,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.4166666666666667,
+          "critical_urgency_false_negatives": 1,
+          "per_need": {
+            "rescue": {
+              "tp": 1,
+              "fp": 2,
+              "fn": 1,
+              "precision": 0.3333333333333333,
+              "recall": 0.5
+            },
+            "medical": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 1,
+              "fp": 1,
+              "fn": 1,
+              "precision": 0.5,
+              "recall": 0.5
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "el": {
+          "samples": 12,
+          "need_precision_micro": 0.375,
+          "need_recall_micro": 0.3,
+          "need_f1_micro": 0.3333333333333333,
+          "need_false_negative_rate": 0.7,
+          "need_exact_match": 0.25,
+          "urgency_accuracy": 0.3333333333333333,
+          "critical_urgency_false_negatives": 2,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 3,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 2,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.6666666666666666,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "en": {
+          "samples": 12,
+          "need_precision_micro": 0.6,
+          "need_recall_micro": 0.3,
+          "need_f1_micro": 0.4,
+          "need_false_negative_rate": 0.7,
+          "need_exact_match": 0.3333333333333333,
+          "urgency_accuracy": 0.4166666666666667,
+          "critical_urgency_false_negatives": 2,
+          "per_need": {
+            "rescue": {
+              "tp": 0,
+              "fp": 1,
+              "fn": 2,
+              "precision": 0.0,
+              "recall": 0.0
+            },
+            "medical": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            },
+            "shelter": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 1,
+              "precision": 1.0,
+              "recall": 0.5
+            },
+            "water": {
+              "tp": 2,
+              "fp": 1,
+              "fn": 0,
+              "precision": 0.6666666666666666,
+              "recall": 1.0
+            },
+            "food": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 2,
+              "precision": null,
+              "recall": 0.0
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "tr-03",
+            "language": "tr",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "tr-04",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "negation"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-05",
+            "language": "tr",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "water"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-06",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "tr-07",
+            "language": "tr",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "tr-08",
+            "language": "tr",
+            "tags": [
+              "ended_exercise",
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "tr-10",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "tr-11",
+            "language": "tr",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-01",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-02",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-03",
+            "language": "en",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "en-04",
+            "language": "en",
+            "tags": [
+              "implicit",
+              "negation"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-06",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "en-07",
+            "language": "en",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-10",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "en-11",
+            "language": "en",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-01",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-02",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "number"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-03",
+            "language": "el",
+            "tags": [
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue",
+              "medical"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-04",
+            "language": "el",
+            "tags": [
+              "implicit",
+              "negation"
+            ],
+            "expected_needs": [
+              "shelter"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-06",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "food"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "UNKNOWN"
+          },
+          {
+            "id": "el-07",
+            "language": "el",
+            "tags": [
+              "multiple"
+            ],
+            "expected_needs": [
+              "water",
+              "food"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "MEDIUM",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-08",
+            "language": "el",
+            "tags": [
+              "ended_exercise",
+              "negation"
+            ],
+            "expected_needs": [],
+            "actual_needs": [
+              "rescue"
+            ],
+            "expected_urgency": "UNKNOWN",
+            "actual_urgency": "CRITICAL"
+          },
+          {
+            "id": "el-10",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "rescue"
+            ],
+            "actual_needs": [
+              "water"
+            ],
+            "expected_urgency": "CRITICAL",
+            "actual_urgency": "MEDIUM"
+          },
+          {
+            "id": "el-11",
+            "language": "el",
+            "tags": [
+              "implicit"
+            ],
+            "expected_needs": [
+              "medical"
+            ],
+            "actual_needs": [],
+            "expected_urgency": "HIGH",
+            "actual_urgency": "UNKNOWN"
+          }
+        ],
+        "by_error_tag": {
+          "ambiguous": {
+            "samples": 3,
+            "incorrect_rows": 0,
+            "false_positives": 0,
+            "false_negatives": 0,
+            "urgency_errors": 0
+          },
+          "ended_exercise": {
+            "samples": 3,
+            "incorrect_rows": 2,
+            "false_positives": 2,
+            "false_negatives": 0,
+            "urgency_errors": 2
+          },
+          "implicit": {
+            "samples": 24,
+            "incorrect_rows": 17,
+            "false_positives": 4,
+            "false_negatives": 17,
+            "urgency_errors": 17
+          },
+          "multiple": {
+            "samples": 3,
+            "incorrect_rows": 3,
+            "false_positives": 0,
+            "false_negatives": 3,
+            "urgency_errors": 0
+          },
+          "negation": {
+            "samples": 9,
+            "incorrect_rows": 8,
+            "false_positives": 6,
+            "false_negatives": 3,
+            "urgency_errors": 8
+          },
+          "number": {
+            "samples": 9,
+            "incorrect_rows": 5,
+            "false_positives": 1,
+            "false_negatives": 5,
+            "urgency_errors": 5
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "The template training corpus has only four repeated positive classes and no food examples.",
+    "The authored holdout and candidate rules share an author and are not independent.",
+    "Greek wording and every label require native-speaker and rescue-domain review.",
+    "No result authorizes suppression, merging or dispatch; human review remains mandatory."
+  ]
+}

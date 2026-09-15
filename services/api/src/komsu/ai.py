@@ -187,6 +187,199 @@ class BaselineAnalyzer:
         }
 
 
+GUARDED_NEED_PATTERNS = {
+    "tr": {
+        "rescue": (r"\benkaz\w*", r"\bmahsur\w*", r"\bsikisti\w*", r"\bcikaram\w*", r"catida kald"),
+        "medical": (
+            r"\byarali\w*",
+            r"\bambulans\w*",
+            r"\bkanama\w*",
+            r"saglik ekibi",
+            r"nefes alam",
+        ),
+        "shelter": (
+            r"\bbarinak\w*",
+            r"\bcadir\w*",
+            r"kalacak yer",
+            r"geceyi (?:disarida|acikta)",
+            r"ev\w*.*(?:yikildi|oturulamaz)",
+        ),
+        "water": (
+            r"\bsu(?:yu|ya|suz)?\b",
+            r"icme suyu",
+            r"icecek.*(?:kalmadi|bulam)",
+            r"musluk\w* kuru",
+        ),
+        "food": (r"\bgida\w*", r"\byemek\w*", r"\byiyece\w*", r"erzak.*tuken", r"cocuklar ac\b"),
+    },
+    "en": {
+        "rescue": (
+            r"\btrapped\b",
+            r"\brubble\b",
+            r"\bpinned\b",
+            r"cannot get out",
+            r"stranded.*roof",
+        ),
+        "medical": (
+            r"\binjured\b",
+            r"\bbleeding\b",
+            r"\bmedical\b",
+            r"health team",
+            r"cannot breathe",
+            r"losing blood",
+        ),
+        "shelter": (
+            r"\bshelter\b",
+            r"\btent\b",
+            r"place to sleep",
+            r"sleep outdoors",
+            r"somewhere to stay",
+            r"home.*(?:collapsed|uninhabitable)",
+        ),
+        "water": (
+            r"\bdrinking water\b",
+            r"\bbring water\b",
+            r"\bneed(?:ed)? water\b",
+            r"\bwater (?:is )?(?:needed|required)\b",
+            r"nothing.*drink",
+            r"taps? (?:are )?dry",
+        ),
+        "food": (r"\bfood\b", r"something to eat", r"supplies.*gone", r"\bhungry\b"),
+    },
+    "el": {
+        "rescue": (r"\bεγκλωβ\w*", r"\bερειπ\w*", r"\bπαγιδευ\w*", r"αποκλειστ\w*.*στεγη"),
+        "medical": (r"\bτραυμα\w*", r"\bασθενοφορ\w*", r"\bιατρικ\w*", r"χανουν αιμα", r"αναπνευσ"),
+        "shelter": (
+            r"\bκαταφυγ\w*",
+            r"\bσκην\w*",
+            r"μεροσ να (?:κοιμηθ|μειν)",
+            r"κοιμηθουν εξω",
+            r"σπιτι.*δεν κατοικ",
+        ),
+        "water": (
+            r"\bχρειαζ\w* νερο\b",
+            r"\bφερτε\w*.*νερο\b",
+            r"\bποσιμο\w*",
+            r"βρυσεσ.*στεγν",
+            r"τιποτα να πιουμε",
+        ),
+        "food": (r"\bτροφι\w*", r"\bφαγη\w*", r"να φαμε", r"\bπειν\w*", r"προμηθειεσ.*τελειω"),
+    },
+}
+
+ABSENCE_PATTERNS = {
+    "tr": {
+        "rescue": (r"(?:kimse )?(?:mahsur|enkaz\w*) (?:degil|yok)",),
+        "medical": (r"yarali (?:degil|yok)", r"yaralanan olmadi"),
+    },
+    "en": {
+        "rescue": (r"(?:no one|nobody|no people|not) (?:is |are )?trapped",),
+        "medical": (r"(?:no one|nobody) (?:is )?injured", r"no (?:injuries|casualties)"),
+    },
+    "el": {
+        "rescue": (r"κανεισ δεν (?:ειναι )?εγκλωβ", r"δεν υπαρχουν.{0,80}εγκλωβ"),
+        "medical": (r"δεν υπαρχουν τραυμα",),
+    },
+}
+
+ENDED_EXERCISE = {
+    "tr": r"\b(?:tatbikat|senaryo)\b.*\b(?:bitti|sona erdi|tamamlandi)\b",
+    "en": r"\b(?:drill|exercise|scenario)\b.*\b(?:ended|finished|complete)\w*\b",
+    "el": r"\b(?:ασκηση|σεναριο)\b.*\b(?:τελειω|ολοκληρω)\w*",
+}
+UNCERTAINTY = {
+    "tr": r"\b(?:olabilir|bilmiyoruz|sanirim|belki)\b",
+    "en": r"\b(?:may|might|unknown|do not know|unsure)\b",
+    "el": r"\b(?:ισωσ|δεν γνωριζ|αγνωστ)\w*",
+}
+NUMBER_MARKERS = {
+    "tr": r"\b(?:bir|iki|uc|dort|bes|alti|yedi|sekiz|dokuz|on)\b|\d",
+    "en": r"\b(?:one|two|three|four|five|six|seven|eight|nine|ten)\b|\d",
+    "el": r"\b(?:ενα|μια|δυο|τρεισ|τεσσερι|πεντε|εξι|επτα|οκτω|εννεα|δεκα)\w*\b|\d",
+}
+
+
+class GuardedRulesAnalyzer:
+    """Evaluation candidate with explicit negation/indirect-need guardrails."""
+
+    def analyze(self, text: str, language: str = "und", address: str | None = None) -> dict:
+        baseline = BaselineAnalyzer().analyze(text, language, address)
+        language = baseline["original_language"]
+        if language not in GUARDED_NEED_PATTERNS:
+            baseline["pipeline_version"] = "rules-0.2-candidate"
+            baseline["warnings"].append("CLASSIFICATION_LANGUAGE_UNAVAILABLE")
+            return baseline
+        value = folded(text)
+        exercise_ended = bool(re.search(ENDED_EXERCISE[language], value))
+        needs = []
+        if not exercise_ended:
+            for need, patterns in GUARDED_NEED_PATTERNS[language].items():
+                present = any(re.search(pattern, value) for pattern in patterns)
+                absent = any(
+                    re.search(pattern, value)
+                    for pattern in ABSENCE_PATTERNS.get(language, {}).get(need, ())
+                )
+                if present and not absent:
+                    needs.append(need)
+        urgency = (
+            "CRITICAL"
+            if "rescue" in needs
+            else "HIGH"
+            if "medical" in needs
+            else "MEDIUM"
+            if needs
+            else "UNKNOWN"
+        )
+        types = [
+            key for key, terms in TAXONOMY.items() if any(matches(value, term) for term in terms)
+        ]
+        warnings = [
+            "UNCALIBRATED_CANDIDATE",
+            "HUMAN_REVIEW_REQUIRED",
+            "TRANSLATION_UNAVAILABLE",
+            "NO_AUTOMATIC_DISPATCH",
+        ]
+        if exercise_ended:
+            warnings.append("ENDED_EXERCISE_REQUIRES_REVIEW")
+        if any(
+            re.search(pattern, value)
+            for patterns in ABSENCE_PATTERNS.get(language, {}).values()
+            for pattern in patterns
+        ):
+            warnings.append("NEGATION_SCOPE_APPLIED_REVIEW")
+        if re.search(NUMBER_MARKERS[language], value):
+            warnings.append("NUMERALS_REQUIRE_REVIEW")
+        if re.search(UNCERTAINTY[language], value):
+            warnings.append("AMBIGUOUS_STATEMENT_REQUIRES_REVIEW")
+        baseline.update(
+            {
+                "pipeline_version": "rules-0.2-candidate",
+                "incident_type": "unknown"
+                if exercise_ended
+                else types[0]
+                if len(types) == 1
+                else "unknown",
+                "needs": needs,
+                "urgency_level": urgency,
+                "urgency_score": {"CRITICAL": 0.9, "HIGH": 0.7, "MEDIUM": 0.5, "UNKNOWN": 0.0}[
+                    urgency
+                ],
+                "possible_trapped_people": "rescue" in needs,
+                "medical_need": "medical" in needs,
+                "ai_confidence": 0.35 if needs else 0.0,
+                "human_review_required": True,
+                "warnings": warnings,
+                "classification_provenance": {
+                    "candidate": "guarded-multilingual-rules",
+                    "revision": "rules-0.2-candidate",
+                    "calibrated": False,
+                    "automatic_action": False,
+                },
+            }
+        )
+        return baseline
+
+
 @dataclass(frozen=True)
 class DuplicateEvidence:
     score: float

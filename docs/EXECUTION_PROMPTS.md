@@ -7,7 +7,7 @@ Bu plan kredi kullanımını sınırlamak için her görevi tek bir doğrulanabi
 ## Güncel başlangıç noktası
 
 - Kontrollü sunum demosu: yaklaşık `%90`.
-- Uzun gereksinim kapsamı: yaklaşık `%60`.
+- Uzun gereksinim kapsamı: yaklaşık `%62`.
 - Gerçek kurum/saha pilotu hazırlığı: yaklaşık `%30`.
 - Çalışan parçalar: FastAPI/PostgreSQL/PostGIS/pgvector, kalıcı kuyruk, tenant/RBAC, insan incelemesi ve sevk, üç dilli web paneli, sentetik GIS katmanları, Android çevrimdışı Room kuyruğu, şifreli relay zarfı ve şifreli ses karantinası.
 - Bilinen kalite sınırları: sınıflandırma ihtiyaç recall `0.50`, semantic recall@1 `0.0`, kritik çeviri kayıpları ve yalnız iki sentetik TTS örneğinde Whisper WER `0.3793`.
@@ -42,6 +42,8 @@ Komşu reposunun güncel durum belgelerini oku. Yalnız kullanıcıdan kısa ses
 ```
 
 ## Prompt 4 — İhtiyaç ve aciliyet sınıflandırma kalitesi
+
+Durum: **COMPLETED (2026-09-15)** — hata türleri ve ön eşikler yazıldı; deployed rules-0.1, guarded rules adayı ve açık kaynak char-TFIDF/logistic aday TR/EL/EN development/holdout ayrımında ölçüldü. Guarded aday yazarlı sentetik sette eşikleri geçti, ancak bağımsız/anadili konuşan saha etiketi olmadığı için varsayılan değiştirilmedi.
 
 ```text
 Komşu reposunda AI değerlendirme belgelerini ve mevcut sentetik/zorlayıcı veri setlerini oku. Yalnız ihtiyaç türü ve aciliyet sınıflandırmasını iyileştir. Önce mevcut başarısız örnekleri hata türlerine ayır; mahsur, sağlık, barınak, su ve belirsiz durumlar için TR/EL/EN ayrı ölçüm üret. Kural tabanı ile açık kaynak model adaylarını tekrarlanabilir deneyle karşılaştır; veri sızıntısını önleyen train/dev/test ayrımı ve model provenance ekle. En güvenli aday yeterli değilse varsayılanı değiştirme. False negative, sayı/olumsuzluk ve düşük güven durumlarını insan incelemesine yönlendir; otomatik sevk ekleme. Hedef metrikleri ve başarısızlık eşiğini önceden yaz, test ve değerlendirmeleri çalıştır, sonuçları olduğu gibi kaydet. Belgeleri güncelle, commit oluştur ve gerçek etiketli veri ihtiyacını belirt.

@@ -148,6 +148,8 @@ Web derlemesi için MapLibre 6 worker'ı `?worker&url` ile paketlenir; yalnız `
 
 `python scripts/evaluate.py` şablon regresyonunu; `--input data/challenge.synthetic.jsonl --output docs/evaluation/challenge-results.json --kind synthetic_challenge_not_independent_validation` zorlayıcı örnekleri ölçer. `python scripts/benchmark_local.py` localhost API ve ayrı sentetik kurumda 30 mesajlık HTTP burst + kuyruk boşaltma ölçümü yapar. Sonuçların sınırları `docs/evaluation/INTERPRETATION.md` içinde açıklanmıştır.
 
+`python scripts/evaluate_classification.py`, deployed kuralları guarded rules adayı ve yerel scikit-learn char-TFIDF/logistic adayına karşı karşılaştırır. Bu komut `requirements-models.lock` içindeki numpy/scipy/scikit-learn paketlerini ister; uzak inference yapmaz. 36 satırlık authored holdout sonuçları bağımsız değildir: guarded aday 1.0 ölçülse de varsayılan `rules-0.1` olarak kaldı. Plan, ön eşikler, split ve SHA-256 provenance `docs/evaluation/CLASSIFICATION_PLAN.md` ile `classification-candidate-results.json` içindedir.
+
 ## Güvenlik, deployment, sorun giderme
 
 [Threat model](docs/security/THREAT_MODEL.md), [saklama yürütmesi](docs/security/RETENTION.md) ve [deployment ADR](docs/adr/008-deployment.md). Scoped DB rolü, RLS, parametreli sorgu, validation, versioned insan işlemleri ve audit test edildi. TLS termination, encrypted host/backup, OIDC/MFA, merkezi quota, backup/cache re-purge, tam observability, uzak restore, pentest ve hukuk/saha doğrulaması tamamlanmadan gerçek veri veya pilot açmayın. Bu sınırlar bir sertifikasyon iddiası değildir.

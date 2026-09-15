@@ -1,0 +1,36 @@
+{"id":"tr-01","text":"Köprü altında iki kişi sıkıştı, çıkaramıyoruz.","language":"tr","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"tr-02","text":"Üç kişinin kanaması var, sağlık ekibi bekliyoruz.","language":"tr","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"tr-03","text":"Evde kimse mahsur değil ve yaralanan olmadı.","language":"tr","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["negation"]}
+{"id":"tr-04","text":"Çadırımız yok; çocuklarla geceyi açıkta geçiriyoruz.","language":"tr","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","negation"]}
+{"id":"tr-05","text":"Musluklar kuru, iki gündür içecek bulamıyoruz.","language":"tr","gold":{"needs":["water"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"tr-06","text":"Erzak tükendi, çocuklar aç.","language":"tr","gold":{"needs":["food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"tr-07","text":"İçme suyu ve yiyecek ulaştırın.","language":"tr","gold":{"needs":["water","food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["multiple"]}
+{"id":"tr-08","text":"Deprem tatbikatı bitti, gerçek yardım çağrısı yok.","language":"tr","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ended_exercise","negation"]}
+{"id":"tr-09","text":"Binadan duman geliyor olabilir, içeride kimse olduğunu bilmiyoruz.","language":"tr","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ambiguous"]}
+{"id":"tr-10","text":"Sel suları yükseliyor; çatıda kaldık.","language":"tr","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"flood"},"tags":["implicit"]}
+{"id":"tr-11","text":"Nefes alamıyor, acil sağlık ekibi lazım.","language":"tr","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"tr-12","text":"Yangından sonra ev oturulamaz, kalacak yer arıyoruz.","language":"tr","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"wildfire"},"tags":["implicit"]}
+{"id":"en-01","text":"Two residents are pinned beneath the bridge and cannot get out.","language":"en","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"en-02","text":"Three people are losing blood; send a health team.","language":"en","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"en-03","text":"No one is trapped in the house and there are no casualties.","language":"en","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["negation"]}
+{"id":"en-04","text":"We have no tent and the children must sleep outdoors tonight.","language":"en","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","negation"]}
+{"id":"en-05","text":"The taps are dry and we have had nothing safe to drink for two days.","language":"en","gold":{"needs":["water"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"en-06","text":"Our supplies are gone and the children are hungry.","language":"en","gold":{"needs":["food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"en-07","text":"Bring drinking water and something to eat.","language":"en","gold":{"needs":["water","food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["multiple"]}
+{"id":"en-08","text":"The earthquake drill has ended; this is not a real call for aid.","language":"en","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ended_exercise","negation"]}
+{"id":"en-09","text":"There may be smoke from the building, but we do not know whether anyone is inside.","language":"en","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ambiguous"]}
+{"id":"en-10","text":"Flood water is rising and we are stranded on the roof.","language":"en","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"flood"},"tags":["implicit"]}
+{"id":"en-11","text":"She cannot breathe and needs an urgent health team.","language":"en","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"en-12","text":"After the wildfire our home is uninhabitable; we need somewhere to stay.","language":"en","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"wildfire"},"tags":["implicit"]}
+{"id":"el-01","text":"Δύο κάτοικοι έχουν παγιδευτεί κάτω από τη γέφυρα και δεν μπορούν να βγουν.","language":"el","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"el-02","text":"Τρεις άνθρωποι χάνουν αίμα, στείλτε ιατρική ομάδα.","language":"el","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"el-03","text":"Κανείς δεν είναι εγκλωβισμένος στο σπίτι και δεν υπάρχουν τραυματίες.","language":"el","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["negation"]}
+{"id":"el-04","text":"Δεν έχουμε σκηνή και τα παιδιά θα κοιμηθούν έξω απόψε.","language":"el","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","negation"]}
+{"id":"el-05","text":"Οι βρύσες είναι στεγνές και δεν έχουμε πόσιμο νερό για δύο ημέρες.","language":"el","gold":{"needs":["water"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit","number"]}
+{"id":"el-06","text":"Οι προμήθειες τελείωσαν και τα παιδιά πεινούν.","language":"el","gold":{"needs":["food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"el-07","text":"Φέρτε πόσιμο νερό και κάτι να φάμε.","language":"el","gold":{"needs":["water","food"],"urgency_level":"MEDIUM","incident_type":"unknown"},"tags":["multiple"]}
+{"id":"el-08","text":"Η άσκηση σεισμού ολοκληρώθηκε· δεν είναι πραγματική κλήση βοήθειας.","language":"el","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ended_exercise","negation"]}
+{"id":"el-09","text":"Ίσως υπάρχει καπνός από το κτίριο, αλλά δεν γνωρίζουμε αν είναι κανείς μέσα.","language":"el","gold":{"needs":[],"urgency_level":"UNKNOWN","incident_type":"unknown"},"tags":["ambiguous"]}
+{"id":"el-10","text":"Το νερό της πλημμύρας ανεβαίνει και έχουμε αποκλειστεί στη στέγη.","language":"el","gold":{"needs":["rescue"],"urgency_level":"CRITICAL","incident_type":"flood"},"tags":["implicit"]}
+{"id":"el-11","text":"Δεν μπορεί να αναπνεύσει και χρειάζεται επειγόντως ιατρική ομάδα.","language":"el","gold":{"needs":["medical"],"urgency_level":"HIGH","incident_type":"unknown"},"tags":["implicit"]}
+{"id":"el-12","text":"Μετά την πυρκαγιά το σπίτι δεν κατοικείται και ψάχνουμε μέρος να μείνουμε.","language":"el","gold":{"needs":["shelter"],"urgency_level":"MEDIUM","incident_type":"wildfire"},"tags":["implicit"]}

@@ -10,7 +10,7 @@
       "need_false_negative_rate": 0.5,
       "need_exact_match": 0.3333333333333333,
       "taxonomy_accuracy": 0.8333333333333334,
-      "inference_median_ms": 0.18739998631644994,
+      "inference_median_ms": 0.08394999895244837,
       "false_positives": 2,
       "false_negatives": 3
     },
@@ -22,7 +22,7 @@
       "need_false_negative_rate": 0.5,
       "need_exact_match": 0.3333333333333333,
       "taxonomy_accuracy": 0.8333333333333334,
-      "inference_median_ms": 0.08840000373311341,
+      "inference_median_ms": 0.06565000512637198,
       "false_positives": 2,
       "false_negatives": 3
     },
@@ -34,7 +34,7 @@
       "need_false_negative_rate": 0.5,
       "need_exact_match": 0.3333333333333333,
       "taxonomy_accuracy": 0.8333333333333334,
-      "inference_median_ms": 0.10664999717846513,
+      "inference_median_ms": 0.08664999040775001,
       "false_positives": 2,
       "false_negatives": 3
     }
