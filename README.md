@@ -25,6 +25,8 @@ AI baseline kalibre edilmemiştir. Sabitlenmiş yerel bge-m3 semantik önerileri
 
 Mimari: [SYSTEM_ARCHITECTURE](docs/architecture/SYSTEM_ARCHITECTURE.md), [ERD/veritabanı](docs/architecture/DATABASE.md), [kararlar](docs/adr/001-backend.md), [şifreli ses kararı](docs/adr/009-encrypted-audio-quarantine.md), [vertical-slice roadmap](ROADMAP.md).
 
+Kredi kullanımını sınırlayan, tamamlanmaya kadar sıralı Codex görevleri: [EXECUTION_PROMPTS](docs/EXECUTION_PROMPTS.md).
+
 ## Yerel kurulum
 
 Gerekenler: Python 3.12+, Docker Engine/Desktop, Node.js (Vite sürümünün desteklediği güncel Node), npm. Android için Android Studio/JDK ve SDK 36. Komutları bu repo kökünde çalıştırın.
