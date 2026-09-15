@@ -429,6 +429,61 @@
         }
       }
     },
+    "/api/v1/reports/{report_id}/audio/decision": {
+      "post": {
+        "summary": "Audio Decision",
+        "operationId": "audio_decision_api_v1_reports__report_id__audio_decision_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AudioDecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioAccepted"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/{report_id}": {
       "get": {
         "summary": "Report Detail",
@@ -1136,7 +1191,13 @@
           },
           "state": {
             "type": "string",
-            "const": "QUARANTINED",
+            "enum": [
+              "QUARANTINED",
+              "SCAN_PASSED",
+              "SCAN_ERROR",
+              "RELEASED",
+              "REJECTED"
+            ],
             "title": "State"
           },
           "content_type": {
@@ -1162,19 +1223,101 @@
             "minLength": 1,
             "title": "Encryption Key Id"
           },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version"
+          },
+          "scanner_revision": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scanner Revision"
+          },
+          "scan_verdict": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "CLEAN",
+                  "MALICIOUS",
+                  "INVALID",
+                  "ERROR"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Verdict"
+          },
+          "scan_reason_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scan Reason Code"
+          },
+          "scanned_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scanned At"
+          },
+          "decision_reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Reason"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "title": "Created At"
           },
-          "replayed": {
-            "type": "boolean",
-            "title": "Replayed"
-          },
           "human_review_required": {
             "type": "boolean",
             "const": true,
             "title": "Human Review Required"
+          },
+          "replayed": {
+            "type": "boolean",
+            "title": "Replayed"
           }
         },
         "additionalProperties": false,
@@ -1187,11 +1330,43 @@
           "plaintext_bytes",
           "duration_ms",
           "encryption_key_id",
+          "version",
           "created_at",
-          "replayed",
-          "human_review_required"
+          "human_review_required",
+          "replayed"
         ],
         "title": "AudioAccepted"
+      },
+      "AudioDecisionIn": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Version"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "RELEASE",
+              "REJECT"
+            ],
+            "title": "Decision"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "decision",
+          "reason"
+        ],
+        "title": "AudioDecisionIn"
       },
       "Coordinates": {
         "properties": {

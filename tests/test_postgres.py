@@ -355,6 +355,68 @@ def test_postgres_rls_auth_and_fail_closed(pg):
     assert client.get(f"/api/v1/cases/{item['case_id']}", headers=headers(b)).status_code == 404
 
 
+def test_postgres_audio_scan_release_is_tenant_scoped_and_race_safe(pg):
+    from komsu.audio_scanning import ScanOutcome, ScanVerdict, scan_audio_asset
+
+    engine, client, uploader, other = pg
+    item, _ = pg_report(pg)
+    uploaded = client.post(
+        f"/api/v1/reports/{item['report_id']}/audio",
+        headers={**headers(uploader), "Content-Type": "audio/wav"},
+        content=audio_fixture(),
+    )
+    assert uploaded.status_code == 201, uploaded.text
+
+    class Scanner:
+        def scan(self, payload):
+            assert payload.startswith(b"RIFF")
+            return ScanOutcome(ScanVerdict.CLEAN, "NO_THREAT_DETECTED")
+
+    settings = Settings()
+    with tenant_session(engine, uploader["tenant_id"]) as session:
+        scanned, _ = scan_audio_asset(
+            session,
+            uploader["tenant_id"],
+            uploaded.json()["id"],
+            Scanner(),
+            "postgres-test-scanner-v1",
+            settings.audio_master_key_b64,
+        )
+        assert scanned.state == "SCAN_PASSED" and scanned.version == 2
+    assert (
+        client.post(
+            f"/api/v1/reports/{item['report_id']}/audio/decision",
+            headers=headers(other),
+            json={"expected_version": 2, "decision": "RELEASE", "reason": "foreign tenant"},
+        ).status_code
+        == 404
+    )
+
+    admin_engine = make_engine(os.environ["KOMSU_ADMIN_DATABASE_URL"])
+    first = provision(admin_engine, "Audio approver one", "coordinator", uploader["tenant_id"])
+    second = provision(admin_engine, "Audio approver two", "coordinator", uploader["tenant_id"])
+    admin_engine.dispose()
+    path = f"/api/v1/reports/{item['report_id']}/audio/decision"
+
+    def release(identity):
+        return client.post(
+            path,
+            headers=headers(identity),
+            json={
+                "expected_version": 2,
+                "decision": "RELEASE",
+                "reason": f"Reviewed by {identity['user_id']}",
+            },
+        ).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        assert sorted(executor.map(release, [first, second])) == [200, 409]
+    detail = client.get(f"/api/v1/reports/{item['report_id']}", headers=headers(uploader)).json()
+    assert detail["audio"]["state"] == "RELEASED"
+    assert detail["audio"]["scan_verdict"] == "CLEAN"
+    assert "ciphertext" not in detail["audio"]
+
+
 def test_postgres_ingestion_concurrency_and_worker(pg):
     engine, client, a, _ = pg
     item, data = pg_report(pg)

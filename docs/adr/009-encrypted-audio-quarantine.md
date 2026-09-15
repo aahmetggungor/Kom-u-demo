@@ -60,11 +60,17 @@ orphan collection, legal holds, restore and deletion evidence.
 - The current single-key configuration records a key ID but does not implement
   a keyring, rotation/re-encryption or emergency revocation.
 
-## Required follow-up before transcription or pilot
+## Scan/release extension — 2026-09-15
 
-Add an isolated scanner/decoder boundary and an explicit release transition;
-let only that worker decrypt quarantined rows. Implement a keyring and rotation
-runbook, recovery-key escrow decision, rate/capacity measurements, audit review,
-backup re-purge, Android/web capture, real noisy TR/EL/EN validation and legal
-approval. Until those pass, quarantine is storage evidence rather than a safe
-voice-report pipeline.
+Migration `0006` adds a fail-closed `AudioScanner` protocol, fixed persisted
+verdict codes, scanner revision, optimistic version and explicit human decision.
+Only `CLEAN`/`SCAN_PASSED` audio can become `RELEASED`, and the releasing
+admin/coordinator must differ from the uploader. Exact decision replay is
+idempotent; conflicting races return 409. No HTTP endpoint accepts scanner
+verdicts and no raw audio route was added.
+
+Before transcription or pilot, connect a pinned and isolated real scanner to the
+protocol, then add the released-audio transcription worker. Key rotation,
+backup-key recovery and a restore drill that includes encrypted audio remain.
+Obtain legal review and use consented multilingual human/noisy audio; the
+existing two OS-TTS fixtures prove plumbing only.

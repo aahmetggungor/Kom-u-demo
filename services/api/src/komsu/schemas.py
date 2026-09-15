@@ -96,17 +96,40 @@ class ReportAccepted(StrictModel):
     replayed: bool
 
 
-class AudioAccepted(StrictModel):
+class AudioMetadata(StrictModel):
     id: str
     report_id: str
-    state: Literal["QUARANTINED"]
+    state: Literal["QUARANTINED", "SCAN_PASSED", "SCAN_ERROR", "RELEASED", "REJECTED"]
     content_type: Literal["audio/wav"]
     plaintext_bytes: int = Field(ge=1, le=2_000_000)
     duration_ms: int = Field(ge=200, le=30_000)
     encryption_key_id: str = Field(min_length=1, max_length=80)
+    version: int = Field(ge=1)
+    scanner_revision: str | None = Field(default=None, max_length=160)
+    scan_verdict: Literal["CLEAN", "MALICIOUS", "INVALID", "ERROR"] | None = None
+    scan_reason_code: str | None = Field(default=None, max_length=80)
+    scanned_at: datetime | None = None
+    decision_reason: str | None = Field(default=None, max_length=500)
+    decided_at: datetime | None = None
     created_at: datetime
-    replayed: bool
     human_review_required: Literal[True]
+
+
+class AudioAccepted(AudioMetadata):
+    replayed: bool
+
+
+class AudioDecisionIn(StrictModel):
+    expected_version: int = Field(ge=1)
+    decision: Literal["RELEASE", "REJECT"]
+    reason: str = Field(min_length=3, max_length=500)
+
+    @field_validator("reason")
+    @classmethod
+    def nonblank_reason(cls, value):
+        if not value.strip():
+            raise ValueError("reason required")
+        return value.strip()
 
 
 class RetentionScheduleIn(StrictModel):

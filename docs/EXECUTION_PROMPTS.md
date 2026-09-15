@@ -19,6 +19,8 @@ Her prompt sonunda Codex şunları yapmalıdır: ilgili testleri çalıştırmak
 
 ## Prompt 1 — Ses karantinası tarama ve serbest bırakma
 
+Durum: **COMPLETED (2026-09-15)** — protokol/test doubles, fail-closed durum makinesi, iki kullanıcı ayrımlı release ve gerçek PostgreSQL yarış testi. Gerçek scanner motoru pilot dış bağımlılığı olarak açıktır.
+
 ```text
 C:\Users\rog\Documents\Codex\2026-09-14\files-mentioned-by-the-user-ahmet\outputs\komsu içinde çalış. Önce PROJECT_STATUS.md, docs/AUDIT_2026-09-15.md, docs/REQUIREMENTS.md ve docs/adr/009-encrypted-audio-quarantine.md dosyalarını oku; tamamlanmış işleri tekrar yapma. Yalnız ses karantinası tarama ve açık serbest bırakma aşamasını tamamla. Karantinadaki şifreli WAV için durum makinesi, ayrıcalıklı scanner arayüzü, zararlı/bozuk içerik sonucu, iki kişilik veya uygun yetkili serbest bırakma kararı, audit kaydı, idempotency ve fail-closed davranışını geliştir. Tarama başarılı ve açıkça serbest bırakılmış ses dışında hiçbir içerik Whisper'a gitmesin. Plaintext'i API yanıtı veya loglara koyma. Gerçek tarayıcı motoru yoksa adapter ve deterministik güvenli test doubles kullan; bunu gerçek tarama diye sunma. Tenant/RLS, tekrar, yarış, ret, bozuk ciphertext ve retention testlerini ekle. İlgili backend testlerini, ardından tam Python paketini çalıştır; belgeleri güncelle ve tek commit oluştur. Sonuçta kalan dış bağımlılıkları ve Prompt 2'ye hazır olup olmadığını yaz.
 ```

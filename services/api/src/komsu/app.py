@@ -16,6 +16,7 @@ from sqlalchemy import case as sql_case
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import SQLAlchemyError
 
+from .audio_scanning import decide_audio
 from .audio_storage import (
     ALLOWED_CONTENT_TYPES,
     AudioConfigurationError,
@@ -36,6 +37,7 @@ from .retention import create_hold, hold_json, plan_json, release_hold
 from .retention import schedule as schedule_retention
 from .schemas import (
     AudioAccepted,
+    AudioDecisionIn,
     DispatchIn,
     LegalHoldIn,
     LegalHoldReleaseIn,
@@ -187,7 +189,7 @@ def create_app(settings: Settings | None = None, engine=None):
         try:
             with engine.connect() as conn:
                 revision = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            if revision != "0005":
+            if revision != "0006":
                 raise ValueError("migration mismatch")
         except (SQLAlchemyError, ValueError):
             raise HTTPException(503, "Database/schema not ready") from None
@@ -308,6 +310,17 @@ def create_app(settings: Settings | None = None, engine=None):
             except AudioRejected as exc:
                 raise HTTPException(422, str(exc)) from None
             return JSONResponse(audio_json(asset, replayed), status_code=200 if replayed else 201)
+
+    @app.post(
+        "/api/v1/reports/{report_id}/audio/decision",
+        response_model=AudioAccepted,
+    )
+    def audio_decision(
+        report_id: UUID, payload: AudioDecisionIn, actor: Principal = Depends(principal)
+    ):
+        with tenant_session(engine, actor.tenant_id) as session:
+            asset, replayed = decide_audio(session, actor, str(report_id), payload)
+            return audio_json(asset, replayed)
 
     @app.get("/api/v1/reports/{report_id}")
     def report_detail(report_id: UUID, actor: Principal = Depends(principal)):

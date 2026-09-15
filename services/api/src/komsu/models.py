@@ -150,11 +150,27 @@ class AudioAsset(Base):
     nonce: Mapped[bytes] = mapped_column(LargeBinary)
     ciphertext: Mapped[bytes] = mapped_column(LargeBinary)
     content_hmac: Mapped[str] = mapped_column(String(64))
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    scanner_revision: Mapped[str | None] = mapped_column(String(160))
+    scan_verdict: Mapped[str | None] = mapped_column(String(24))
+    scan_reason_code: Mapped[str | None] = mapped_column(String(80))
+    scanned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    decided_by: Mapped[str | None] = mapped_column(ForeignKey("users.id"))
+    decision_reason: Mapped[str | None] = mapped_column(String(500))
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     __table_args__ = (
         ForeignKeyConstraint(["tenant_id", "report_id"], ["reports.tenant_id", "reports.id"]),
         UniqueConstraint("tenant_id", "report_id"),
-        CheckConstraint("state IN ('QUARANTINED','READY','REJECTED')"),
+        CheckConstraint(
+            "state IN ('QUARANTINED','SCAN_PASSED','SCAN_ERROR','RELEASED','REJECTED')",
+            name="ck_audio_assets_state",
+        ),
+        CheckConstraint("version >= 1", name="ck_audio_assets_version"),
+        CheckConstraint(
+            "scan_verdict IS NULL OR scan_verdict IN ('CLEAN','MALICIOUS','INVALID','ERROR')",
+            name="ck_audio_assets_scan_verdict",
+        ),
         CheckConstraint("plaintext_bytes BETWEEN 1 AND 2000000"),
         CheckConstraint("duration_ms BETWEEN 200 AND 30000"),
     )
