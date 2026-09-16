@@ -1,0 +1,12 @@
+FROM node:24-alpine AS build
+WORKDIR /web
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM caddy:2-alpine
+COPY Caddyfile.demo /etc/caddy/Caddyfile
+COPY --from=build /web/dist /srv
+USER 10001:10001
+EXPOSE 8080
