@@ -1,0 +1,5 @@
+{
+  "tr": {"delivery_id":"synthetic-tr-1","external_id":"synthetic-provider-tr-1","text":"SENTETİK TEST: Eğitim binasında deprem sonrası temiz su gerekiyor. Gerçek yardım talebi değildir.","language":"tr","received_at":"2026-09-16T00:00:00+00:00"},
+  "el": {"delivery_id":"synthetic-el-1","external_id":"synthetic-provider-el-1","text":"ΣΥΝΘΕΤΙΚΗ ΔΟΚΙΜΗ: Χρειάζεται νερό στο κτίριο εκπαίδευσης. Δεν είναι πραγματικό αίτημα βοήθειας.","language":"el","received_at":"2026-09-16T00:00:00+00:00"},
+  "en": {"delivery_id":"synthetic-en-1","external_id":"synthetic-provider-en-1","text":"SYNTHETIC TEST: Clean water is needed at the training building. This is not a real emergency.","language":"en","received_at":"2026-09-16T00:00:00+00:00"}
+}

@@ -44,11 +44,15 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Migrations 0003/0004 add tenant-scoped retention plans and expiring legal holds; 0005 adds encrypted audio quarantine, 0006 scan/release state, 0007/0008 durable transcript jobs/provenance, and 0009 versioned/licensed GIS metadata. Destructive execution requires a distinct approver, due time and exact plan-ID confirmation; active holds block it. Transcript rows cascade with retained audio deletion. Synthetic PostgreSQL coverage verifies redaction, audio/spatial/embedding cleanup, cancellation and cross-tenant isolation.
 - A 192,131-byte logical backup was restored to a separate local database and migrated from 0002 to 0004; runtime auth, RLS, 12 demo reports/embeddings and semantic retrieval passed. This is same-host restore evidence, not HA/offsite DR.
 
+- Prompt 9 complete: tenant-bound SMS/messaging/social/phone inbound contract, HMAC/timestamp checks, durable replay receipts, hashed dead letters, atomic report/audio/receipt writes and PostgreSQL-serialized quotas. Local synthetic provider simulator covers delivery replay and API outage. Live providers are not connected.
+- Prompt 9 verification: 108 non-PostgreSQL tests and 11 PostgreSQL tests passed; concurrent quotas and injected receipt crashes leave no orphan reports/audio. OpenAPI and inbound operations guide updated.
+- Protected synthetic Render demo deployed at https://komsu-demo.onrender.com; web/Android use the same API. GitHub Actions produces the demo APK. Free database expiration and disabled heavy models remain presentation limitations.
+
 ## IN PROGRESS
-- Vendor-independent external message channel adapters and contract validation. Live integrations remain gated by provider accounts and credentials.
+- Prompt 10: Android offline field experience, session expiry, queue visibility and versioned rescue phrase/audio import.
 
 ## NEXT
-- External message channel adapters; Greek/noisy human transcription validation; central monitoring; relay key distribution/radio implementation and physical-device validation.
+- Complete Prompt 10 Android offline/stabilization, then Prompt 11 device transport, Prompt 12 load/failure resilience and Prompt 13 centralized monitoring. Live geocoder/GIS/provider integration awaits the listed external inputs.
 
 ## BLOCKERS
 - No hard infrastructure blocker currently. Docker Desktop was started; Windows localhost/IPv6 connection issue avoided using 127.0.0.1 and explicit connection timeout.

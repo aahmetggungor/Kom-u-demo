@@ -381,6 +381,43 @@
         ]
       }
     },
+    "/api/v1/inbound/{connector_id}": {
+      "post": {
+        "summary": "Receive Inbound",
+        "operationId": "receive_inbound_api_v1_inbound__connector_id__post",
+        "parameters": [
+          {
+            "name": "connector_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Connector Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/{report_id}/audio": {
       "post": {
         "summary": "Receive Audio",
@@ -1185,6 +1222,27 @@
         ]
       }
     },
+    "/api/v1/map/package": {
+      "get": {
+        "summary": "Map Package",
+        "operationId": "map_package_api_v1_map_package_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/events": {
       "get": {
         "summary": "Events",
@@ -1502,6 +1560,34 @@
             "minLength": 3,
             "title": "Provenance"
           },
+          "dataset_version": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Dataset Version"
+          },
+          "license_name": {
+            "type": "string",
+            "maxLength": 160,
+            "minLength": 2,
+            "title": "License Name"
+          },
+          "content_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Sha256"
+          },
+          "source_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Source Updated At"
+          },
+          "stale_after_days": {
+            "type": "integer",
+            "maximum": 3650.0,
+            "minimum": 1.0,
+            "title": "Stale After Days"
+          },
           "geojson": {
             "additionalProperties": true,
             "type": "object",
@@ -1514,6 +1600,11 @@
           "kind",
           "name",
           "provenance",
+          "dataset_version",
+          "license_name",
+          "content_sha256",
+          "source_updated_at",
+          "stale_after_days",
           "geojson"
         ],
         "title": "LayerIn"
@@ -1853,7 +1944,8 @@
           "manual",
           "sms",
           "messaging",
-          "social"
+          "social",
+          "phone"
         ],
         "title": "Source"
       },

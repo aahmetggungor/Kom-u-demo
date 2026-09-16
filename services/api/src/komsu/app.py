@@ -15,7 +15,9 @@ from prometheus_client import CollectorRegistry, Counter, Histogram, generate_la
 from sqlalchemy import case as sql_case
 from sqlalchemy import func, select, text
 from sqlalchemy.exc import SQLAlchemyError
+from starlette.concurrency import run_in_threadpool
 
+from .adapters import ChannelAdapter, verify_webhook_signature
 from .audio_scanning import decide_audio
 from .audio_storage import (
     ALLOWED_CONTENT_TYPES,
@@ -24,6 +26,20 @@ from .audio_storage import (
     audio_json,
     derive_keys,
     store_audio,
+    validate_pcm_wav,
+)
+from .channels import (
+    InboundRejected,
+    body_sha256,
+    connector_principal,
+    decode_phone_audio,
+    existing_delivery,
+    fallback_delivery_key,
+    inbound_transaction,
+    keyed_identifier,
+    parse_message,
+    quota_exceeded,
+    record_delivery,
 )
 from .config import Settings
 from .db import make_engine, tenant_session
@@ -58,6 +74,7 @@ from .schemas import (
     RetentionCancelIn,
     RetentionScheduleIn,
     ReviewIn,
+    Source,
     SplitIn,
     TeamIn,
     TranscriptReviewIn,
@@ -131,7 +148,16 @@ def create_app(settings: Settings | None = None, engine=None):
         "komsu_http_requests_total", "HTTP requests", ["method", "status"], registry=registry
     )
     latency = Histogram("komsu_http_duration_seconds", "HTTP duration", registry=registry)
+    inbound_results = Counter(
+        "komsu_inbound_deliveries_total",
+        "Inbound channel outcomes without connector or tenant labels",
+        ["result"],
+        registry=registry,
+    )
     windows = defaultdict(deque)
+    connectors = {item.connector_id: item for item in settings.channel_connectors}
+    if len(connectors) != len(settings.channel_connectors):
+        raise ValueError("Duplicate channel connector ID")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins,
@@ -146,12 +172,14 @@ def create_app(settings: Settings | None = None, engine=None):
         start = time.monotonic()
         # Enforce actual streamed bytes, not just an untrusted Content-Length header.
         body = bytearray()
-        body_limit = (
-            settings.max_audio_bytes
-            if request.url.path.startswith("/api/v1/reports/")
-            and request.url.path.endswith("/audio")
-            else settings.max_body_bytes
-        )
+        if request.url.path.startswith("/api/v1/inbound/"):
+            body_limit = settings.max_inbound_bytes
+        elif request.url.path.startswith("/api/v1/reports/") and request.url.path.endswith(
+            "/audio"
+        ):
+            body_limit = settings.max_audio_bytes
+        else:
+            body_limit = settings.max_body_bytes
         async for chunk in request.stream():
             body.extend(chunk)
             if len(body) > body_limit:
@@ -202,7 +230,7 @@ def create_app(settings: Settings | None = None, engine=None):
         try:
             with engine.connect() as conn:
                 revision = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
-            if revision != "0009":
+            if revision != "0010":
                 raise ValueError("migration mismatch")
         except (SQLAlchemyError, ValueError):
             raise HTTPException(503, "Database/schema not ready") from None
@@ -282,6 +310,199 @@ def create_app(settings: Settings | None = None, engine=None):
                 processing_status=report.processing_status,
                 replayed=replayed,
             )
+
+    @app.post("/api/v1/inbound/{connector_id}", status_code=202)
+    async def receive_inbound(connector_id: str, request: Request):
+        connector = connectors.get(connector_id)
+        if connector is None:
+            inbound_results.labels("unknown_connector").inc()
+            raise HTTPException(404, "Inbound connector not found")
+        secret = connector.secret.get_secret_value().encode()
+        signature = request.headers.get("x-komsu-signature", "")
+        try:
+            timestamp = int(request.headers.get("x-komsu-timestamp", ""))
+        except ValueError:
+            timestamp = 0
+        body = await request.body()
+        if not verify_webhook_signature(
+            secret,
+            body,
+            timestamp,
+            signature,
+            int(time.time()),
+            settings.max_inbound_bytes,
+        ):
+            inbound_results.labels("invalid_signature").inc()
+            raise HTTPException(401, "Invalid inbound signature or timestamp")
+        actor = connector_principal(engine, connector)
+        if actor is None:
+            inbound_results.labels("misconfigured_actor").inc()
+            raise HTTPException(
+                503, "Inbound connector is not ready", headers={"Retry-After": "30"}
+            )
+
+        def process():
+            with inbound_transaction(engine, actor.tenant_id) as connection:
+                return process_inbound(connection, connector, body, actor)
+
+        return await run_in_threadpool(process)
+
+    def process_inbound(engine, connector, body, actor):
+        secret = connector.secret.get_secret_value().encode()
+        body_hash = body_sha256(body)
+
+        try:
+            message = parse_message(body)
+            delivery_key = keyed_identifier(secret, "delivery", message.delivery_id)
+            external_key = keyed_identifier(secret, "external", message.external_id)
+        except InboundRejected as exc:
+            delivery_key = fallback_delivery_key(secret, body)
+            with tenant_session(engine, actor.tenant_id) as session:
+                previous = existing_delivery(session, connector, delivery_key)
+                if previous and previous.body_sha256 != body_hash:
+                    raise HTTPException(409, "Inbound delivery ID conflict") from None
+                if previous is None:
+                    if quota_exceeded(session, connector):
+                        inbound_results.labels("quota").inc()
+                        raise HTTPException(
+                            429,
+                            "Inbound connector quota exceeded",
+                            headers={"Retry-After": "60"},
+                        ) from None
+                    record_delivery(
+                        session,
+                        connector,
+                        delivery_key,
+                        None,
+                        body_hash,
+                        "DEAD_LETTER",
+                        error_code=exc.code,
+                    )
+            inbound_results.labels("dead_letter").inc()
+            raise HTTPException(
+                422, {"code": exc.code, "detail": "Inbound delivery rejected"}
+            ) from None
+
+        with tenant_session(engine, actor.tenant_id) as session:
+            previous = existing_delivery(session, connector, delivery_key)
+            if previous:
+                if previous.body_sha256 != body_hash:
+                    inbound_results.labels("conflict").inc()
+                    raise HTTPException(409, "Inbound delivery ID conflict")
+                if previous.state == "DEAD_LETTER":
+                    inbound_results.labels("dead_letter_replay").inc()
+                    raise HTTPException(
+                        422,
+                        {"code": previous.error_code, "detail": "Inbound delivery rejected"},
+                    )
+                report = session.scalar(
+                    select(Report).where(
+                        Report.tenant_id == actor.tenant_id,
+                        Report.id == previous.report_id,
+                    )
+                )
+                if report is None:
+                    raise HTTPException(410, "Inbound receipt has expired")
+                inbound_results.labels("delivery_replay").inc()
+                return JSONResponse(
+                    {
+                        "report_id": report.id,
+                        "case_id": report.case_id,
+                        "processing_status": report.processing_status,
+                        "replayed": True,
+                        "delivery_replayed": True,
+                    },
+                    status_code=200,
+                )
+            if quota_exceeded(session, connector):
+                inbound_results.labels("quota").inc()
+                raise HTTPException(
+                    429, "Inbound connector quota exceeded", headers={"Retry-After": "60"}
+                )
+
+        try:
+            audio = decode_phone_audio(message, connector.source, settings.max_audio_bytes)
+            if audio is not None:
+                if settings.audio_master_key_b64 is None:
+                    raise HTTPException(
+                        503,
+                        "Encrypted audio storage is not configured",
+                        headers={"Retry-After": "30"},
+                    )
+                derive_keys(settings.audio_master_key_b64)
+                validate_pcm_wav(audio, settings.max_audio_bytes)
+            payload = ChannelAdapter(connector.connector_id, Source(connector.source)).convert(
+                message
+            )
+        except HTTPException:
+            raise
+        except AudioConfigurationError:
+            raise HTTPException(
+                503, "Encrypted audio storage is not configured", headers={"Retry-After": "30"}
+            ) from None
+        except (InboundRejected, AudioRejected, ValueError) as exc:
+            code = (
+                exc.code
+                if isinstance(exc, InboundRejected)
+                else (
+                    "INVALID_PHONE_AUDIO"
+                    if isinstance(exc, AudioRejected)
+                    else "INVALID_REPORT_PAYLOAD"
+                )
+            )
+            with tenant_session(engine, actor.tenant_id) as session:
+                record_delivery(
+                    session,
+                    connector,
+                    delivery_key,
+                    external_key,
+                    body_hash,
+                    "DEAD_LETTER",
+                    error_code=code,
+                )
+            inbound_results.labels("dead_letter").inc()
+            raise HTTPException(
+                422, {"code": code, "detail": "Inbound delivery rejected"}
+            ) from None
+
+        with tenant_session(engine, actor.tenant_id) as session:
+            report, replayed = ingest(session, actor, payload, settings.queue_limit)
+        if audio is not None:
+            with tenant_session(engine, actor.tenant_id) as session:
+                stored_report = session.scalar(
+                    select(Report).where(
+                        Report.tenant_id == actor.tenant_id, Report.id == report.id
+                    )
+                )
+                store_audio(
+                    session,
+                    actor,
+                    stored_report,
+                    audio,
+                    settings.audio_master_key_b64,
+                    settings.audio_key_id,
+                    settings.max_audio_bytes,
+                )
+        with tenant_session(engine, actor.tenant_id) as session:
+            receipt = record_delivery(
+                session,
+                connector,
+                delivery_key,
+                external_key,
+                body_hash,
+                "ACCEPTED",
+                report_id=report.id,
+            )
+            if receipt.body_sha256 != body_hash:
+                raise HTTPException(409, "Inbound delivery ID conflict")
+        inbound_results.labels("accepted").inc()
+        return {
+            "report_id": report.id,
+            "case_id": report.case_id,
+            "processing_status": report.processing_status,
+            "replayed": replayed,
+            "delivery_replayed": False,
+        }
 
     @app.post(
         "/api/v1/reports/{report_id}/audio",

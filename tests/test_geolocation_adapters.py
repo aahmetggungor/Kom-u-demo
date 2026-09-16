@@ -159,6 +159,7 @@ def test_localhost_contract_server_matches_synthetic_multilingual_fixture():
 def test_adapter_replay_identity_and_signature():
     adapter = ChannelAdapter("registered-sms-gateway", Source.sms)
     message = UpstreamMessage(
+        delivery_id="delivery-123",
         external_id="provider-123",
         text="Synthetic report",
         received_at=datetime.now(UTC),

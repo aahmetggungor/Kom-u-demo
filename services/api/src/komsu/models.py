@@ -305,6 +305,26 @@ class MapLayer(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class InboundDelivery(Base):
+    __tablename__ = "inbound_deliveries"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    tenant_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    connector_id: Mapped[str] = mapped_column(String(64))
+    delivery_key: Mapped[str] = mapped_column(String(64))
+    external_key: Mapped[str | None] = mapped_column(String(64))
+    body_sha256: Mapped[str] = mapped_column(String(64))
+    report_id: Mapped[str | None] = mapped_column(String(36))
+    state: Mapped[str] = mapped_column(String(24))
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "connector_id", "delivery_key"),
+        CheckConstraint("state IN ('ACCEPTED','DEAD_LETTER')"),
+        CheckConstraint("(state = 'ACCEPTED') = (report_id IS NOT NULL)"),
+        Index("ix_inbound_deliveries_quota", "tenant_id", "connector_id", "received_at"),
+    )
+
+
 class ReviewHistory(Base):
     __tablename__ = "review_history"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)

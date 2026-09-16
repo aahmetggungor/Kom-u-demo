@@ -1,12 +1,13 @@
 """Two-person retention scheduling and explicit administrative execution."""
 
-from sqlalchemy import func, select, text
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import Session
 
 from .domain import audit, serialize_tenant
 from .models import (
     AudioAsset,
     Case,
+    InboundDelivery,
     LegalHold,
     MapLayer,
     Report,
@@ -33,6 +34,22 @@ def plan_json(session, plan):
         )
         .where(Report.tenant_id == plan.tenant_id, Report.occurred_at <= plan.cutoff_at)
     )
+    inbound_count = session.scalar(
+        select(func.count())
+        .select_from(InboundDelivery)
+        .where(
+            InboundDelivery.tenant_id == plan.tenant_id,
+            or_(
+                InboundDelivery.received_at <= plan.cutoff_at,
+                InboundDelivery.report_id.in_(
+                    select(Report.id).where(
+                        Report.tenant_id == plan.tenant_id,
+                        Report.occurred_at <= plan.cutoff_at,
+                    )
+                ),
+            ),
+        )
+    )
     return {
         "id": plan.id,
         "status": plan.status,
@@ -46,6 +63,7 @@ def plan_json(session, plan):
         "executed_at": plan.executed_at.isoformat() if plan.executed_at else None,
         "preview_report_count": report_count if plan.status != "EXECUTED" else None,
         "preview_audio_count": audio_count if plan.status != "EXECUTED" else None,
+        "preview_inbound_receipt_count": inbound_count if plan.status != "EXECUTED" else None,
         "result_counts": plan.result_counts,
         "requires_distinct_approver": True,
     }
@@ -233,6 +251,17 @@ def execute(admin_engine, plan_id, confirmation):
             Report.tenant_id == plan.tenant_id, Report.occurred_at <= plan.cutoff_at
         )
         counts = {}
+        counts["inbound_receipts_deleted"] = (
+            session.query(InboundDelivery)
+            .filter(
+                InboundDelivery.tenant_id == plan.tenant_id,
+                or_(
+                    InboundDelivery.received_at <= plan.cutoff_at,
+                    InboundDelivery.report_id.in_(report_ids),
+                ),
+            )
+            .delete(synchronize_session=False)
+        )
         counts["audio_assets_deleted"] = (
             session.query(AudioAsset)
             .filter(

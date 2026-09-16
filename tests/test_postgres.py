@@ -1,8 +1,12 @@
 import base64
+import hashlib
+import hmac
 import io
+import json
 import math
 import os
 import struct
+import time
 import wave
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
@@ -14,15 +18,64 @@ from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from komsu.app import create_app
 from komsu.cli import provision
-from komsu.config import Settings
+from komsu.config import ChannelConnectorSettings, Settings
 from komsu.db import make_engine, tenant_session
-from komsu.models import AudioAsset, AudioTranscript, Audit, Case
+from komsu.models import AudioAsset, AudioTranscript, Audit, Case, InboundDelivery
 from komsu.worker import process_one
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 pytestmark = pytest.mark.postgres
+
+
+def test_postgres_inbound_concurrent_quota_and_atomic_retry(pg, monkeypatch):
+    import komsu.app as app_module
+    from komsu.config import ChannelConnectorSettings
+    from komsu.models import InboundDelivery, Report
+    from sqlalchemy import func
+    from test_inbound_channels import SECRET, envelope, signed_post
+
+    engine, _, actor, _ = pg
+    settings = Settings(
+        environment="test",
+        requests_per_minute=10000,
+        _env_file=None,
+        channel_connectors=[
+            ChannelConnectorSettings(
+                connector_id="pg-race",
+                tenant_id=actor["tenant_id"],
+                actor_id=actor["user_id"],
+                source="sms",
+                secret=SECRET,
+                requests_per_minute=2,
+            )
+        ],
+    )
+    with TestClient(create_app(settings, engine)) as client:
+        value = envelope()
+        original = app_module.record_delivery
+
+        def fail(*args, **kwargs):
+            raise RuntimeError("Synthetic receipt crash")
+
+        monkeypatch.setattr(app_module, "record_delivery", fail)
+        with pytest.raises(RuntimeError, match="Synthetic receipt"):
+            signed_post(client, "pg-race", value)
+        with tenant_session(engine, actor["tenant_id"]) as session:
+            assert session.scalar(select(func.count()).select_from(Report)) == 0
+        monkeypatch.setattr(app_module, "record_delivery", original)
+        values = [
+            envelope(delivery_id=f"parallel-{i}", external_id=f"external-{i}") for i in range(6)
+        ]
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            results = list(pool.map(lambda value: signed_post(client, "pg-race", value), values))
+        assert sorted(result.status_code for result in results) == [202, 202, 429, 429, 429, 429]
+        with tenant_session(engine, actor["tenant_id"]) as session:
+            assert session.scalar(select(func.count()).select_from(Report)) == 2
+            assert session.scalar(select(func.count()).select_from(InboundDelivery)) == 2
+
+
 AUDIO_KEY = base64.b64encode(b"P" * 32).decode()
 
 
@@ -359,6 +412,48 @@ def test_postgres_rls_auth_and_fail_closed(pg):
     with tenant_session(engine, a["tenant_id"]) as session:
         assert session.scalar(select(Case).where(Case.id == item["case_id"])) is not None
     assert client.get(f"/api/v1/cases/{item['case_id']}", headers=headers(b)).status_code == 404
+
+
+def test_postgres_inbound_connector_actor_and_receipt_rls(pg):
+    engine, _, actor, other = pg
+    secret = "postgres-contract-secret-that-is-at-least-32-bytes"
+    settings = Settings(
+        requests_per_minute=10_000,
+        channel_connectors=[
+            ChannelConnectorSettings(
+                connector_id="postgres-sms",
+                tenant_id=actor["tenant_id"],
+                actor_id=actor["user_id"],
+                source="sms",
+                secret=secret,
+            )
+        ],
+    )
+    value = {
+        "delivery_id": str(uuid4()),
+        "external_id": str(uuid4()),
+        "text": "Synthetic PostgreSQL inbound contract",
+        "received_at": datetime.now(UTC).isoformat(),
+        "language": "en",
+    }
+    body = json.dumps(value, separators=(",", ":")).encode()
+    timestamp = int(time.time())
+    signature = hmac.new(
+        secret.encode(), str(timestamp).encode() + b"." + body, hashlib.sha256
+    ).hexdigest()
+    with TestClient(create_app(settings, engine)) as inbound_api:
+        response = inbound_api.post(
+            "/api/v1/inbound/postgres-sms",
+            content=body,
+            headers={"X-Komsu-Timestamp": str(timestamp), "X-Komsu-Signature": signature},
+        )
+    assert response.status_code == 202, response.text
+    with tenant_session(engine, actor["tenant_id"]) as session:
+        assert session.scalar(select(InboundDelivery.report_id)) == response.json()["report_id"]
+    with tenant_session(engine, other["tenant_id"]) as session:
+        assert session.scalar(select(InboundDelivery)) is None
+    with engine.connect() as connection:
+        assert connection.execute(text("SELECT count(*) FROM inbound_deliveries")).scalar() == 0
 
 
 def test_postgres_audio_scan_release_is_tenant_scoped_and_race_safe(pg):

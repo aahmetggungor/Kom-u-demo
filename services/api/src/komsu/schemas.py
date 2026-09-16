@@ -16,6 +16,7 @@ class Source(StrEnum):
     sms = "sms"
     messaging = "messaging"
     social = "social"
+    phone = "phone"
 
 
 class Coordinates(StrictModel):
