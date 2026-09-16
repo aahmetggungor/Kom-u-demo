@@ -194,9 +194,7 @@ def main():
     training, internal_validation = [], []
     for row in training_all:
         target = (
-            internal_validation
-            if int(row["gold"]["group"].split("-")[1]) % 5 == 0
-            else training
+            internal_validation if int(row["gold"]["group"].split("-")[1]) % 5 == 0 else training
         )
         target.append(row)
     analyzers = {

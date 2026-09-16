@@ -81,7 +81,12 @@ def similar_cases(session, tenant_id, case_id, revision, limit=5):
         ) SELECT * FROM candidates WHERE rank=1
         ORDER BY semantic_similarity DESC, case_id LIMIT :pool
     """),
-            {"tenant": tenant_id, "case_id": case_id, "revision": revision, "pool": max(20, limit * 10)},
+            {
+                "tenant": tenant_id,
+                "case_id": case_id,
+                "revision": revision,
+                "pool": max(20, limit * 10),
+            },
         )
         .mappings()
         .all()
@@ -109,30 +114,32 @@ def similar_cases(session, tenant_id, case_id, revision, limit=5):
             candidate_analysis.get("needs", []),
             location_basis,
         )
-        results.append({
-            "case_id": row["case_id"],
-            "report_id": row["report_id"],
-            "source_report_id": row["source_report_id"],
-            "semantic_similarity": max(-1.0, min(1.0, float(row["semantic_similarity"]))),
-            "distance_m": float(row["distance_m"]) if row["distance_m"] is not None else None,
-            "time_delta_seconds": float(row["time_delta_seconds"]),
-            "model_revision": revision,
-            "human_review_required": True,
-            "building_identity": evidence.address_identity,
-            "suggested_for_review": evidence.propose_merge,
-            "multi_signal_score": round(evidence.score, 6),
-            "signals": {
-                "semantic": round(evidence.semantic_similarity, 6),
-                "location": round(evidence.location_similarity, 6),
-                "time": round(evidence.time_similarity, 6),
-                "address": round(evidence.entity_similarity, 6),
-                "needs": round(evidence.needs_similarity, 6),
-            },
-            "contributions": {name: round(value, 6) for name, value in evidence.contributions},
-            "blockers": list(evidence.blockers),
-            "location_basis": evidence.location_basis,
-            "recommendation": evidence.reason,
-        })
+        results.append(
+            {
+                "case_id": row["case_id"],
+                "report_id": row["report_id"],
+                "source_report_id": row["source_report_id"],
+                "semantic_similarity": max(-1.0, min(1.0, float(row["semantic_similarity"]))),
+                "distance_m": float(row["distance_m"]) if row["distance_m"] is not None else None,
+                "time_delta_seconds": float(row["time_delta_seconds"]),
+                "model_revision": revision,
+                "human_review_required": True,
+                "building_identity": evidence.address_identity,
+                "suggested_for_review": evidence.propose_merge,
+                "multi_signal_score": round(evidence.score, 6),
+                "signals": {
+                    "semantic": round(evidence.semantic_similarity, 6),
+                    "location": round(evidence.location_similarity, 6),
+                    "time": round(evidence.time_similarity, 6),
+                    "address": round(evidence.entity_similarity, 6),
+                    "needs": round(evidence.needs_similarity, 6),
+                },
+                "contributions": {name: round(value, 6) for name, value in evidence.contributions},
+                "blockers": list(evidence.blockers),
+                "location_basis": evidence.location_basis,
+                "recommendation": evidence.reason,
+            }
+        )
     return sorted(
         results,
         key=lambda item: (

@@ -131,7 +131,9 @@ class NominatimSelfHosted:
                 ) as response:
                     if response.status_code == 429 or response.status_code >= 500:
                         raise httpx.HTTPStatusError(
-                            "retryable geocoder response", request=response.request, response=response
+                            "retryable geocoder response",
+                            request=response.request,
+                            response=response,
                         )
                     response.raise_for_status()
                     if "application/json" not in response.headers.get("content-type", ""):

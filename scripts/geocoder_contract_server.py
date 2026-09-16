@@ -54,9 +54,7 @@ def create_server(port: int, fixture: Path) -> ThreadingHTTPServer:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument(
-        "--fixture", type=Path, default=Path("data/geocoder-gold.synthetic.jsonl")
-    )
+    parser.add_argument("--fixture", type=Path, default=Path("data/geocoder-gold.synthetic.jsonl"))
     args = parser.parse_args()
     server = create_server(args.port, args.fixture)
     print(f"Synthetic geocoder contract server: http://127.0.0.1:{server.server_port}")

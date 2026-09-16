@@ -8,6 +8,8 @@ import './style.css';
 
 const CoordinationMap = lazy(() => import('./Map').then(module => ({default: module.CoordinationMap})));
 const localeTags: Record<UiLocale,string> = {tr:'tr-TR',el:'el-GR',en:'en-GB'};
+const demoPasswordLogin = import.meta.env.VITE_DEMO_PASSWORD_LOGIN === 'true';
+const demoLabels = {tr:'Demo şifresi', en:'Demo password', el:'Κωδικός demo'};
 type ConnectionState = 'disconnected'|'connecting'|'live'|'reconnecting';
 
 function labels(copy: Catalogue) {
@@ -101,7 +103,14 @@ export default function App() {
 
   async function login(e:React.FormEvent){
     e.preventDefault();setError('');
-    try {const result=await request<{role:string}>(entry,'/auth/me');const list=await request<Team[]>(entry,'/teams');setRole(result.role);setTeams(list);setToken(entry);setEntry('');}
+    try {
+      let credential=entry;
+      if(demoPasswordLogin){
+        const response=await fetch('/api/v1/demo/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:entry})});
+        if(!response.ok)throw new Error(response.status===429 ? 'Çok fazla giriş denemesi. Bir dakika bekleyin.' : 'Demo şifresi geçersiz veya servis henüz hazır değil.');
+        credential=(await response.json()).token;
+      }
+      const result=await request<{role:string}>(credential,'/auth/me');const list=await request<Team[]>(credential,'/teams');setRole(result.role);setTeams(list);setToken(credential);setEntry('');}
     catch(e){fail(e);}
   }
   function audioError(error:unknown){
@@ -151,7 +160,7 @@ export default function App() {
     <div className="environment">{copy.environment} <span>{copy.environmentWarning}</span></div>
     {!token ? <main className="login">
       <div className="eyebrow">{copy.loginEyebrow}</div><h1>{copy.loginTitleA}<br/>{copy.loginTitleB}</h1><p>{copy.loginIntro}</p>
-      <form onSubmit={login}><label>{copy.accessKey}<input type="password" autoComplete="off" value={entry} onChange={e=>setEntry(e.target.value)} required placeholder={copy.accessKeyPlaceholder}/></label><button type="submit">{copy.openDashboard}</button></form><small>{copy.memoryOnly}</small>
+      <form onSubmit={login}><label>{demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKey}<input type="password" autoComplete="off" value={entry} onChange={e=>setEntry(e.target.value)} required placeholder={demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKeyPlaceholder}/></label><button type="submit">{copy.openDashboard}</button></form><small>{copy.memoryOnly}</small>
     </main> : <main className="dashboard">
       <div className="page-title"><div><div className="eyebrow">{copy.operationView}</div><h1>{copy.pageTitle}</h1><p>{updated?t('lastUpdate',{time:updated.toLocaleTimeString(localeTags[uiLocale])}):copy.waitingData} · {role}</p></div><button disabled={role==='observer'} onClick={()=>setShowForm(!showForm)}>{copy.newReport}</button></div>
       <div className="stats">

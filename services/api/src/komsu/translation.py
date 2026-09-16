@@ -100,7 +100,9 @@ def protect_translation_text(text: str, source: str, target: str) -> ProtectedTr
     for pattern in NEGATION_TERMS[source]:
         for match in re.finditer(pattern, text, re.IGNORECASE):
             start = max(text.rfind(mark, 0, match.start()) for mark in ".!?;") + 1
-            endings = [position for mark in ".!?;" if (position := text.find(mark, match.end())) >= 0]
+            endings = [
+                position for mark in ".!?;" if (position := text.find(mark, match.end())) >= 0
+            ]
             end = min(endings) + 1 if endings else len(text)
             candidates.append((start, end, text[start:end].strip(), "negated_clause"))
 

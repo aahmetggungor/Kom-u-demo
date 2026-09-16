@@ -23,9 +23,7 @@ def main() -> None:
     server = create_server(0, fixture)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    provider = NominatimSelfHosted(
-        f"http://127.0.0.1:{server.server_port}", requests_per_second=50
-    )
+    provider = NominatimSelfHosted(f"http://127.0.0.1:{server.server_port}", requests_per_second=50)
     results = []
     try:
         for row in rows:
@@ -58,10 +56,16 @@ def main() -> None:
         errors = [value["error_m"] for value in values if value["error_m"] is not None]
         return {
             "cases": len(values),
-            "top1_accuracy": round(sum(v["top1_provider_correct"] for v in values) / len(values), 4),
-            "precision_accuracy": round(sum(v["precision_correct"] for v in values) / len(values), 4),
+            "top1_accuracy": round(
+                sum(v["top1_provider_correct"] for v in values) / len(values), 4
+            ),
+            "precision_accuracy": round(
+                sum(v["precision_correct"] for v in values) / len(values), 4
+            ),
             "median_error_m": sorted(errors)[len(errors) // 2] if errors else None,
-            "unresolved_fraction": round(sum(v["error_m"] is None for v in values) / len(values), 4),
+            "unresolved_fraction": round(
+                sum(v["error_m"] is None for v in values) / len(values), 4
+            ),
         }
 
     output = {

@@ -1,0 +1,10 @@
+.git
+.env*
+.venv
+**/node_modules
+**/__pycache__
+**/*.egg-info
+work
+models
+releases
+*.db
