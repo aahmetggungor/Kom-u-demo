@@ -47,7 +47,7 @@ fun FieldScreen(app:KomsuApplication) {
     var tab by remember { mutableIntStateOf(0) }
     var text by remember { mutableStateOf("") }
     var language by remember { mutableStateOf("tr") }
-    var base by remember { mutableStateOf(if(BuildConfig.DEBUG) "http://10.0.2.2:8000" else "") }
+    var base by remember { mutableStateOf("https://komsu-demo.onrender.com") }
     var token by remember { mutableStateOf("") }
     var demoMode by remember { mutableStateOf(true) }
     var message by remember { mutableStateOf("") }

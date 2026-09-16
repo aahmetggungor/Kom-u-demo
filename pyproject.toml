@@ -25,6 +25,7 @@ where = ["services/api/src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = ["postgres: requires dedicated PostgreSQL test database"]
 
 [tool.ruff]
