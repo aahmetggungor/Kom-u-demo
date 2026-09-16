@@ -60,7 +60,9 @@ def test_translation_provenance_and_pivot_warning_are_retained():
     assert result["translated_text"] == {"el": "el:yardım", "en": "en:yardım"}
     assert result["translation_provenance"]["el"]["route"] == ["tr", "en", "el"]
     assert result["translation_provenance"]["el"]["pivoted"] is True
-    assert result["translation_provenance"]["el"]["protection_version"] == "placeholder-terminology-1"
+    assert (
+        result["translation_provenance"]["el"]["protection_version"] == "placeholder-terminology-1"
+    )
     assert "TRANSLATION_PROTECTED_NUMBER_RECOVERED_el" in result["warnings"]
     assert "TRANSLATION_EN_PIVOT_el" in result["warnings"]
     assert result["stages"]["translation"] == "complete"

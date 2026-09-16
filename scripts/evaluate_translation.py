@@ -121,9 +121,7 @@ def main() -> None:
     rows = []
     for case in CASES:
         started = time.perf_counter()
-        baseline_output = raw_translate(
-            translator, case["text"], case["source"], case["target"]
-        )
+        baseline_output = raw_translate(translator, case["text"], case["source"], case["target"])
         result = translator.translate(case["text"], case["source"], case["target"])
         row = {
             **case,

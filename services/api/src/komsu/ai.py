@@ -474,9 +474,7 @@ def multi_signal_duplicate_evidence(
         source_address, candidate_address
     )
     needs_a, needs_b = set(source_needs), set(candidate_needs)
-    needs_score = (
-        len(needs_a & needs_b) / len(needs_a | needs_b) if needs_a and needs_b else 0.0
-    )
+    needs_score = len(needs_a & needs_b) / len(needs_a | needs_b) if needs_a and needs_b else 0.0
     contributions = (
         ("semantic", 0.25 * semantic_score),
         ("location", 0.25 * location_score),

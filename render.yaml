@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: komsu-demo
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./infrastructure/docker/render.Dockerfile
+    healthCheckPath: /health/ready
+    envVars:
+      - key: KOMSU_ADMIN_DATABASE_URL
+        fromDatabase:
+          name: komsu-demo-db
+          property: connectionString
+      - key: KOMSU_APP_PASSWORD
+        generateValue: true
+      - key: KOMSU_DEMO_PASSWORD
+        generateValue: true
+databases:
+  - name: komsu-demo-db
+    databaseName: komsu_demo
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "17"
+    ipAllowList: []

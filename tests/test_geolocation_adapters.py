@@ -143,9 +143,7 @@ def test_localhost_contract_server_matches_synthetic_multilingual_fixture():
     server = create_server(0, fixture)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    provider = NominatimSelfHosted(
-        f"http://127.0.0.1:{server.server_port}", requests_per_second=50
-    )
+    provider = NominatimSelfHosted(f"http://127.0.0.1:{server.server_port}", requests_per_second=50)
     try:
         result = provider.candidates("tenant", "Οδος Ειρηνις 12 Συνθετικη", "el")
         assert result[0].provider_id == "el-eirinis-12"

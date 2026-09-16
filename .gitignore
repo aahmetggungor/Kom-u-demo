@@ -16,3 +16,4 @@ local.properties
 *.log
 *.jks
 models/
+work/
