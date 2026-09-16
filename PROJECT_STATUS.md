@@ -49,7 +49,7 @@ Updated: 2026-09-16. Controlled development foundation, not production ready.
 - Protected synthetic Render demo deployed at https://komsu-demo.onrender.com; web/Android use the same API. GitHub Actions produces the demo APK. Free database expiration and disabled heavy models remain presentation limitations.
 
 ## IN PROGRESS
-- Prompt 10: Android offline field experience, session expiry, queue visibility and versioned rescue phrase/audio import.
+- Prompt 10 in progress: server-advertised demo session expiry, credential invalidation with retained offline tenant/queue, renewed login, restored API address and readable queue/retry controls implemented. Android APK/build/lint, 7 app unit tests and 7 Pixel 7 Android 14 emulator tests passed. Versioned phrase/audio-package import and accessibility rehearsal remain.
 
 ## NEXT
 - Complete Prompt 10 Android offline/stabilization, then Prompt 11 device transport, Prompt 12 load/failure resilience and Prompt 13 centralized monitoring. Live geocoder/GIS/provider integration awaits the listed external inputs.

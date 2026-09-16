@@ -32,7 +32,7 @@ class SyncWorker(context:Context,params:WorkerParameters):CoroutineWorker(contex
             if(outcome.status==SyncStatus.QUEUED) retry=true
             if(outcome.status==SyncStatus.CONFLICT) audioDao.blockForReport(report.localId,tenant,SyncStatus.CONFLICT.name,"REPORT_CONFLICT")
             if(outcome.status==SyncStatus.FAILED && outcome.error!="AUTH_REQUIRED") audioDao.blockForReport(report.localId,tenant,SyncStatus.FAILED.name,"REPORT_FAILED")
-            if(outcome.error=="AUTH_REQUIRED") return@withContext Result.failure()
+            if(outcome.error=="AUTH_REQUIRED") { app.sessions.invalidate();return@withContext Result.failure() }
         }
         for(audio in audioDao.queued(tenant)) {
             val report=dao.get(audio.localReportId)
@@ -43,7 +43,7 @@ class SyncWorker(context:Context,params:WorkerParameters):CoroutineWorker(contex
             val finished=audioDao.finish(audio.localReportId,tenant,claimTime,outcome.status.name,outcome.error)
             if(finished==1 && outcome.status==SyncStatus.SYNCED) AudioFiles.file(applicationContext,tenant,audio.localReportId).delete()
             if(outcome.status==SyncStatus.QUEUED) retry=true
-            if(outcome.error=="AUTH_REQUIRED") return@withContext Result.failure()
+            if(outcome.error=="AUTH_REQUIRED") { app.sessions.invalidate();return@withContext Result.failure() }
         }
         try {
             val json=FieldNetwork.get(session.first to session.second,"/api/v1/cases?limit=100")

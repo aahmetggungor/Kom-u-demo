@@ -22,7 +22,10 @@ class SessionStore(context:Context) {
         }.generateKey()
     }
     fun tenant():String = prefs.getString("tenant", "") ?: ""
-    fun save(baseUrl:String,token:String,tenantId:String) {
+    fun base():String = prefs.getString("base", "https://komsu-demo.onrender.com") ?: "https://komsu-demo.onrender.com"
+    fun needsLogin():Boolean = !prefs.contains("token") || sessionExpired(prefs.getLong("expires",0),System.currentTimeMillis())
+    fun invalidate() { check(prefs.edit().remove("token").remove("iv").remove("expires").commit()) }
+    fun save(baseUrl:String,token:String,tenantId:String,expiresAt:Long=0) {
         java.util.UUID.fromString(tenantId)
         val uri=java.net.URI(baseUrl)
         require(uri.userInfo==null && uri.query==null && uri.fragment==null && (uri.path.isNullOrEmpty() || uri.path=="/"))
@@ -30,9 +33,10 @@ class SessionStore(context:Context) {
         require(token.length in 32..256)
         val cipher=Cipher.getInstance("AES/GCM/NoPadding").apply { init(Cipher.ENCRYPT_MODE,key()) }
         val encrypted=cipher.doFinal(token.toByteArray(Charsets.UTF_8))
-        check(prefs.edit().putString("tenant",tenantId).putString("base",baseUrl.trimEnd('/')).putString("iv",Base64.encodeToString(cipher.iv,Base64.NO_WRAP)).putString("token",Base64.encodeToString(encrypted,Base64.NO_WRAP)).commit())
+        require(expiresAt==0L || expiresAt>System.currentTimeMillis())
+        check(prefs.edit().putLong("expires",expiresAt).putString("tenant",tenantId).putString("base",baseUrl.trimEnd('/')).putString("iv",Base64.encodeToString(cipher.iv,Base64.NO_WRAP)).putString("token",Base64.encodeToString(encrypted,Base64.NO_WRAP)).commit())
     }
-    fun read():Triple<String,String,String>? = try {
+    fun read():Triple<String,String,String>? = if(needsLogin()) null else try {
         val snapshot=prefs.all
         val base=snapshot["base"] as? String
         val encrypted=snapshot["token"] as? String

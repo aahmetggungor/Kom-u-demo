@@ -7,8 +7,10 @@ import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
 
+data class DemoCredential(val token:String,val expiresAt:Long)
+
 object FieldNetwork {
-    fun demoLogin(base:String,password:String):String {
+    fun demoLogin(base:String,password:String):DemoCredential {
         val uri=URI(base)
         require(uri.scheme=="https" && uri.host!=null && uri.userInfo==null && uri.query==null && uri.fragment==null && (uri.path.isNullOrEmpty() || uri.path=="/"))
         require(password.length in 1..256)
@@ -21,9 +23,12 @@ object FieldNetwork {
             connection.setFixedLengthStreamingMode(body.size)
             connection.outputStream.use { it.write(body) }
             check(connection.responseCode==200) { "Demo login failed" }
-            val token=JSONObject(String(connection.inputStream.use { readBounded(it,4096) },Charsets.UTF_8)).getString("token")
+            val result=JSONObject(String(connection.inputStream.use { readBounded(it,4096) },Charsets.UTF_8))
+            val token=result.getString("token")
+            val seconds=result.getLong("expires_in")
+            require(seconds in 1..28800)
             require(token.length in 32..256)
-            token
+            DemoCredential(token,System.currentTimeMillis()+seconds*1000)
         } finally { connection.disconnect() }
     }
     fun readBounded(input:InputStream,limit:Int):ByteArray {
