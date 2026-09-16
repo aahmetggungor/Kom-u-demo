@@ -18,3 +18,9 @@ a presentation deployment, not an operational disaster service.
 Android source is apps/mobile. GitHub Actions builds the debug demo APK and uploads
 komsu-demo-android-apk as a downloadable artifact. Android connects to this same HTTPS API;
 an APK is installed on a phone rather than hosted as an executing Render service.
+
+Demo URL: https://komsu-demo.onrender.com
+In Android, open Bağlantı, keep Render demo password login enabled, enter the same demo
+password and select Doğrula ve bağlan. Only the resulting token is encrypted in session
+storage; the password is cleared. Enter text reports while offline, reconnect, and
+verify the reports appear in the web dashboard. Speech models are disabled here.
