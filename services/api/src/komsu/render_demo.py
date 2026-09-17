@@ -21,10 +21,16 @@ class DemoLogin(BaseModel):
     password: str = Field(min_length=1, max_length=256, repr=False)
 
 
+def validate_demo_password(password: str):
+    # Presentation-only access, explicitly allowing a user-selected short demo PIN.
+    # Database credentials and operational session authentication remain separate.
+    if not 4 <= len(password) <= 256:
+        raise RuntimeError("Demo password must contain 4 to 256 characters")
+
+
 def create_demo_app(settings=None, engine=None, *, password=None, static_dir=None):
-    password = password or os.environ["KOMSU_DEMO_PASSWORD"]
-    if len(password) < 24:
-        raise RuntimeError("Demo password must contain at least 24 characters")
+    password = os.environ["KOMSU_DEMO_PASSWORD"] if password is None else password
+    validate_demo_password(password)
     app = create_app(settings, engine)
     attempts = deque()
     lock = threading.Lock()

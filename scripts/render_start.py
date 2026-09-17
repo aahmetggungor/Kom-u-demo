@@ -14,6 +14,7 @@ from alembic.config import Config
 from komsu.db import make_engine, tenant_session
 from komsu.domain import ingest
 from komsu.models import Membership, Organization, Team, User
+from komsu.render_demo import validate_demo_password
 from komsu.schemas import ReportIn
 from komsu.security import Principal
 from psycopg import sql
@@ -30,8 +31,9 @@ def bootstrap():
         drivername="postgresql+psycopg"
     )
     app_password = os.environ["KOMSU_APP_PASSWORD"]
-    if len(app_password) < 24 or len(os.environ["KOMSU_DEMO_PASSWORD"]) < 24:
-        raise RuntimeError("Generated credentials must contain at least 24 characters")
+    if len(app_password) < 24:
+        raise RuntimeError("Application database password must contain at least 24 characters")
+    validate_demo_password(os.environ["KOMSU_DEMO_PASSWORD"])
     admin = make_engine(admin_url.render_as_string(hide_password=False))
     with admin.begin() as connection:
         exists = connection.execute(

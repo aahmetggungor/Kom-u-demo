@@ -10,6 +10,8 @@ Geliştirme 18 Eylül 2026 tarihinde duraklatıldı. Bu sürüm sentetik veriler
 
 Şifreyi Render → **komsu-demo** → **Environment** → `KOMSU_DEMO_PASSWORD` alanından alın. Web ve Android'de aynı şifre geçerlidir. Şifreyi README'ye veya herkese açık mesajlara koymayın. Şifreyi bilmeyenler panel verilerine erişemez; APK'yı indirebilirler.
 
+Demo şifresini aynı ekranda **Edit** ile değiştirebilirsiniz: `KOMSU_DEMO_PASSWORD` alanını düzenleyip **Save, rebuild, and deploy** seçin. Demo için 4–256 karakter kabul edilir. Kısa bir sunum şifresi kolay tahmin edilir; bu ortamda yalnız sentetik veri kullanın. `KOMSU_APP_PASSWORD` ve veritabanı bağlantısını değiştirmeyin. Şifre değişince mevcut sekiz saatlik oturumlar kendiliğinden iptal edilmez; yeni girişler yeni şifreyi kullanır.
+
 Android 8.0 ve üzeri gerekir. APK'yı telefon tarayıcısından indirin, Android sorarsa yalnız bu tarayıcı için uygulama yükleme izni verin ve dosyayı açın. Bu bir debug demo APK'sıdır; Play Store / üretim sürümü değildir. Uygulamada API adresi `https://komsu-demo.onrender.com` ve demo girişi seçili olmalıdır. Bağlantı bölümünden giriş yapın.
 
 Önceki test APK'sı farklı imzalıysa Android güncellemeyi reddedebilir. **Uygulamayı kaldırmadan önce bekleyen raporları senkronize edin.** Kaldırma, telefondaki yerel kayıtları siler. Bu yayımlanan APK yerel geliştirme anahtarıyla imzalanmıştır; gelecekte aynı anahtarla üretilen APK kullanılmalıdır. Actions APK'sının imzası farklı olabilir.

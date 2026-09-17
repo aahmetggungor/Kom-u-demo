@@ -7,6 +7,10 @@ messages are synthetic. Never import real incident reports into this deployment.
 The web dashboard and API share the HTTPS hostname. KOMSU_DEMO_PASSWORD is generated
 by Render; retrieve it privately in the service environment dashboard. Password login
 issues an eight-hour coordinator token kept in browser memory. Refresh requires login.
+At the user's request, the isolated synthetic demo accepts a user-selected password of
+4 to 256 characters, including a short presentation PIN. A short PIN is easily guessed;
+keep this deployment synthetic. Change only KOMSU_DEMO_PASSWORD in Render Environment,
+then Save, rebuild, and deploy. Application database passwords still require 24 characters.
 Runtime processes have neither the migration database credentials nor token-table grants.
 Startup fails closed if the provider cannot create the restricted komsu_app role or extensions.
 

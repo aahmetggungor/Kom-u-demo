@@ -3,6 +3,7 @@
 Updated: 2026-09-18. Development paused at demo-v0.1.1; controlled demonstration foundation, not production ready.
 
 ## PAUSED DEMO CHECKPOINT
+- Subsequent user-requested presentation adjustment: isolated demo passwords accept 4–256 characters; database application credentials retain the 24-character minimum. The user completes the Render password change; no new product phase was started.
 - User requested a development pause. No later execution prompt was started. Resume from the remaining Prompt 10 work after reading docs/PAUSE_HANDOFF.md.
 - Demo APK version 0.1.1 / versionCode 2 is published through GitHub Releases, linked at the top of README and in the hosted web UI.
 - Hosted web login has an explicit waiting state, bounded timeout and localized errors. Hosted web/Android text demo hides unsupported audio attachment controls.
