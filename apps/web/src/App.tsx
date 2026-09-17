@@ -24,6 +24,7 @@ export default function App() {
   const [uiLocale,setUiLocale] = useState<UiLocale>(initialLocale);
   const copy = catalogues[uiLocale], names = labels(copy);
   const t = (key:keyof Catalogue, values?:Record<string,string|number>) => formatText(copy[key],values);
+  const [loginBusy,setLoginBusy] = useState(false);
   const [token,setToken] = useState(''), [entry,setEntry] = useState('');
   const [role,setRole] = useState(''), [cases,setCases] = useState<Case[]>([]), [total,setTotal] = useState(0), [detail,setDetail] = useState<Detail|null>(null);
   const [teams,setTeams] = useState<Team[]>([]), [error,setError] = useState(''), [notice,setNotice] = useState('');
@@ -102,16 +103,18 @@ export default function App() {
   },[token,refresh,selectCase,fail]);
 
   async function login(e:React.FormEvent){
-    e.preventDefault();setError('');
+    e.preventDefault();if(loginBusy)return;setError('');setLoginBusy(true);
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),120000);
     try {
       let credential=entry;
       if(demoPasswordLogin){
-        const response=await fetch('/api/v1/demo/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:entry})});
-        if(!response.ok)throw new Error(response.status===429 ? 'Çok fazla giriş denemesi. Bir dakika bekleyin.' : 'Demo şifresi geçersiz veya servis henüz hazır değil.');
+        const response=await fetch('/api/v1/demo/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:entry}),signal:controller.signal});
+        if(!response.ok)throw new Error(response.status===429 ? copy.demoQuota : response.status===401 ? copy.demoBadPassword : copy.demoUnavailable);
         credential=(await response.json()).token;
       }
-      const result=await request<{role:string}>(credential,'/auth/me');const list=await request<Team[]>(credential,'/teams');setRole(result.role);setTeams(list);setToken(credential);setEntry('');}
-    catch(e){fail(e);}
+      const result=await request<{role:string}>(credential,'/auth/me',undefined,controller.signal);const list=await request<Team[]>(credential,'/teams',undefined,controller.signal);setRole(result.role);setTeams(list);setToken(credential);setEntry('');}
+    catch(e){fail(e instanceof DOMException && e.name==='AbortError' ? new Error(copy.demoTimeout) : e);}
+    finally{clearTimeout(timeout);setLoginBusy(false);}
   }
   function audioError(error:unknown){
     if(error instanceof AudioInputError){
@@ -158,9 +161,10 @@ export default function App() {
       {token&&<button className="quiet" onClick={logout}>{copy.logout}</button>}
     </header>
     <div className="environment">{copy.environment} <span>{copy.environmentWarning}</span></div>
+    {demoPasswordLogin&&<aside className="demo-access"><nav aria-label={copy.demoHelp}><a href="https://github.com/aahmetggungor/Kom-u-demo/releases/download/demo-v0.1.1/komsu-demo-v0.1.1.apk">{copy.demoDownload}</a><a href="https://github.com/aahmetggungor/Kom-u-demo/blob/main/docs/DEMO_GUIDE.md" target="_blank" rel="noopener noreferrer">{copy.demoHelp}</a></nav><p>{copy.demoStartHelp}</p></aside>}
     {!token ? <main className="login">
       <div className="eyebrow">{copy.loginEyebrow}</div><h1>{copy.loginTitleA}<br/>{copy.loginTitleB}</h1><p>{copy.loginIntro}</p>
-      <form onSubmit={login}><label>{demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKey}<input type="password" autoComplete="off" value={entry} onChange={e=>setEntry(e.target.value)} required placeholder={demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKeyPlaceholder}/></label><button type="submit">{copy.openDashboard}</button></form><small>{copy.memoryOnly}</small>
+      <form onSubmit={login} aria-busy={loginBusy}><label>{demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKey}<input type="password" autoComplete="off" value={entry} onChange={e=>setEntry(e.target.value)} disabled={loginBusy} maxLength={256} required placeholder={demoPasswordLogin ? demoLabels[uiLocale] : copy.accessKeyPlaceholder}/></label><button type="submit" disabled={loginBusy}>{loginBusy?copy.demoWaiting:copy.openDashboard}</button></form><small>{copy.memoryOnly}</small>
     </main> : <main className="dashboard">
       <div className="page-title"><div><div className="eyebrow">{copy.operationView}</div><h1>{copy.pageTitle}</h1><p>{updated?t('lastUpdate',{time:updated.toLocaleTimeString(localeTags[uiLocale])}):copy.waitingData} · {role}</p></div><button disabled={role==='observer'} onClick={()=>setShowForm(!showForm)}>{copy.newReport}</button></div>
       <div className="stats">
@@ -169,7 +173,7 @@ export default function App() {
         <div><span>{copy.humanReview}</span><strong>{stats.review.toString().padStart(2,'0')}</strong><small>{copy.pendingVisible}</small></div>
         <div><span>{copy.awaitingLocation}</span><strong>{stats.unlocated.toString().padStart(2,'0')}</strong><small>{copy.hiddenFromMap}</small></div>
       </div>
-      {showForm&&<form className="report-form" onSubmit={submit}><div><h2>{copy.reportTitle}</h2><p>{copy.reportRetryHelp}</p></div><label>{copy.originalMessage}<textarea value={text} disabled={!!pending.current} required maxLength={8000} onChange={e=>setText(e.target.value)}/></label><label>{copy.address}<input value={address} disabled={!!pending.current} onChange={e=>setAddress(e.target.value)} maxLength={1000}/></label><label>{copy.language}<select value={reportLanguage} disabled={!!pending.current} onChange={e=>setReportLanguage(e.target.value)}><option value="tr">Türkçe</option><option value="el">Ελληνικά</option><option value="en">English</option></select></label><fieldset className="audio-input"><legend>{copy.addAudio}</legend><p>{copy.audioInputHelp}</p><input ref={fileInput} className="visually-hidden" type="file" accept=".wav,audio/wav,audio/x-wav" onChange={chooseAudio}/><div>{!recording&&<button type="button" disabled={!!pending.current||busy} onClick={startRecording}>{audio?copy.recordAgain:copy.startRecording}</button>}{recording&&<><button type="button" onClick={()=>finishRecording()}>{t('stopRecording',{seconds:recordingSeconds})}</button><button type="button" className="quiet" onClick={()=>finishRecording(true)}>{copy.cancelRecording}</button></>}<button type="button" className="quiet" disabled={!!pending.current||busy||recording} onClick={()=>fileInput.current?.click()}>{copy.chooseWav}</button>{audio&&!recording&&<button type="button" className="quiet" disabled={!!pending.current||busy} onClick={()=>{setAudio(null);setAudioLabel('');}}>{copy.removeAudio}</button>}</div>{audioLabel&&<output>{audioLabel}</output>}</fieldset><button disabled={busy||recording}>{busy?copy.sending:pending.current?copy.resend:copy.sendReport}</button></form>}
+      {showForm&&<form className="report-form" onSubmit={submit}><div><h2>{copy.reportTitle}</h2><p>{copy.reportRetryHelp}</p></div><label>{copy.originalMessage}<textarea value={text} disabled={!!pending.current} required maxLength={8000} onChange={e=>setText(e.target.value)}/></label><label>{copy.address}<input value={address} disabled={!!pending.current} onChange={e=>setAddress(e.target.value)} maxLength={1000}/></label><label>{copy.language}<select value={reportLanguage} disabled={!!pending.current} onChange={e=>setReportLanguage(e.target.value)}><option value="tr">Türkçe</option><option value="el">Ελληνικά</option><option value="en">English</option></select></label>{!demoPasswordLogin&&<fieldset className="audio-input"><legend>{copy.addAudio}</legend><p>{copy.audioInputHelp}</p><input ref={fileInput} className="visually-hidden" type="file" accept=".wav,audio/wav,audio/x-wav" onChange={chooseAudio}/><div>{!recording&&<button type="button" disabled={!!pending.current||busy} onClick={startRecording}>{audio?copy.recordAgain:copy.startRecording}</button>}{recording&&<><button type="button" onClick={()=>finishRecording()}>{t('stopRecording',{seconds:recordingSeconds})}</button><button type="button" className="quiet" onClick={()=>finishRecording(true)}>{copy.cancelRecording}</button></>}<button type="button" className="quiet" disabled={!!pending.current||busy||recording} onClick={()=>fileInput.current?.click()}>{copy.chooseWav}</button>{audio&&!recording&&<button type="button" className="quiet" disabled={!!pending.current||busy} onClick={()=>{setAudio(null);setAudioLabel('');}}>{copy.removeAudio}</button>}</div>{audioLabel&&<output>{audioLabel}</output>}</fieldset>}<button disabled={busy||recording}>{busy?copy.sending:pending.current?copy.resend:copy.sendReport}</button></form>}
       <div className="filters">
         <label>{copy.priority}<select value={urgency} onChange={e=>setUrgency(e.target.value)}><option value="">{copy.all}</option>{Object.entries(names.urgency).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
         <label>{copy.verification}<select value={verification} onChange={e=>setVerification(e.target.value)}><option value="">{copy.all}</option><option value="UNVERIFIED">{copy.unverified}</option><option value="VERIFIED">{copy.verified}</option><option value="REJECTED">{copy.rejected}</option></select></label>

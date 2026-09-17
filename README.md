@@ -1,5 +1,11 @@
 # Komşu / γείτονας
 
+**[🌐 Giriş korumalı web demosu](https://komsu-demo.onrender.com) · [📱 Android APK indir — 0.1.1](https://github.com/aahmetggungor/Kom-u-demo/releases/download/demo-v0.1.1/komsu-demo-v0.1.1.apk) · [GitHub Releases](https://github.com/aahmetggungor/Kom-u-demo/releases/tag/demo-v0.1.1)**
+
+**[Demo kullanım ve test rehberi](docs/DEMO_GUIDE.md)** · **[Ara verme / devam belgesi](docs/PAUSE_HANDOFF.md)**
+
+18 Eylül 2026: geliştirmeye ara verildi; metin raporlarıyla gösterilebilir demo 0.1.1 kaydedildi. Web ve Android aynı demo şifresini kullanır. APK GitHub Releases'tedir; Actions'ın süreli indirmesine gerek yoktur. Ücretsiz Render veritabanı kalıcı değildir: oluşturulduktan 30 gün sonra sona erer; ayrıntılar kullanım rehberinde.
+
 Türkiye–Yunanistan afet koordinasyonu için insan kararını merkeze alan, üç dilli mesaj ve çevrimdışı saha uygulaması temeli. Ürün kaynağı FıraTech Komşu proje PDF'sidir. PDF kapsamı ve ek mühendislik gereksinimleri [gereksinim matrisinde](docs/REQUIREMENTS.md) ayrılır.
 
 **Durum:** çalışan geliştirme temeli; production-ready veya gerçek afette kullanıma onaylı değildir. Sentetik verilerle çalışın. Özelliklerin doğrulama durumu [PROJECT_STATUS.md](PROJECT_STATUS.md) içinde tutulur.

@@ -16,8 +16,16 @@ Free services sleep after inactivity; the free database expires after 30 days. T
 a presentation deployment, not an operational disaster service.
 
 Android source is apps/mobile. GitHub Actions builds the debug demo APK and uploads
-komsu-demo-android-apk as a downloadable artifact. Android connects to this same HTTPS API;
+komsu-demo-android-apk as a temporary artifact. The durable demo-v0.1.1 APK is published at
+https://github.com/aahmetggungor/Kom-u-demo/releases/tag/demo-v0.1.1 and linked in README
+and the hosted web UI. It uses the local development debug signing key; Actions builds
+can have a different key. Sync queued records before any uninstall.
+Android connects to this same HTTPS API;
 an APK is installed on a phone rather than hosted as an executing Render service.
+
+Development paused on 2026-09-18. Dashboard confirms database expiration on 2026-10-16.
+No paid plan or cloud backup was created. See docs/DEMO_GUIDE.md and docs/PAUSE_HANDOFF.md
+before restarting development or changing the hosting plan.
 
 Demo URL: https://komsu-demo.onrender.com
 In Android, open Bağlantı, keep Render demo password login enabled, enter the same demo

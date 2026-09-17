@@ -1,6 +1,14 @@
 # Project status
 
-Updated: 2026-09-16. Controlled development foundation, not production ready.
+Updated: 2026-09-18. Development paused at demo-v0.1.1; controlled demonstration foundation, not production ready.
+
+## PAUSED DEMO CHECKPOINT
+- User requested a development pause. No later execution prompt was started. Resume from the remaining Prompt 10 work after reading docs/PAUSE_HANDOFF.md.
+- Demo APK version 0.1.1 / versionCode 2 is published through GitHub Releases, linked at the top of README and in the hosted web UI.
+- Hosted web login has an explicit waiting state, bounded timeout and localized errors. Hosted web/Android text demo hides unsupported audio attachment controls.
+- This checkpoint: 11 web tests and hosted production build passed; Android APK, 7 app unit tests, 7 cached relay unit tests, 7 Pixel 7 / Android 14 instrumentation tests and lint passed (0 errors, 14 warnings).
+- Render database dashboard confirms expiry on **October 16, 2026**. No paid upgrade or cloud database backup was performed; GitHub source and Release APK remain independent of that expiry.
+- Usage and manual offline demonstration: docs/DEMO_GUIDE.md. Historical test results below describe their original checkpoints, not field certification.
 
 ## COMPLETED
 - Correct three-page product PDF extracted and visually inspected, including architecture figure.

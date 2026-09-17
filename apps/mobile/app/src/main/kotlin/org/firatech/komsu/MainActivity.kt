@@ -72,11 +72,12 @@ fun FieldScreen(app:KomsuApplication) {
             }
         }
     }
+    val hostedTextDemo=app.sessions.base().trimEnd('/').equals("https://komsu-demo.onrender.com",ignoreCase=true)
     val repository=remember { ReportRepository(app,app.database) }
     Surface(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize().systemBarsPadding().padding(20.dp)) {
             Text("komşu / γείτονας",style=MaterialTheme.typography.headlineMedium)
-            Text("Saha koordinasyonu · Geliştirme sürümü",style=MaterialTheme.typography.labelSmall)
+            Text("Saha koordinasyonu · Demo 0.1.1",style=MaterialTheme.typography.labelSmall)
             Spacer(Modifier.height(12.dp))
             Text("Sentetik veriyle test edin. AI sevk kararı vermez.",color=Color(0xFF936028),style=MaterialTheme.typography.bodySmall)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
@@ -88,7 +89,7 @@ fun FieldScreen(app:KomsuApplication) {
                     if(tenant.isEmpty()) Text("Önce Bağlantı bölümünden kurum oturumunu bir kez açın. Sonrasında raporlar çevrimdışı kaydedilebilir.")
                     OutlinedTextField(value=text,onValueChange={if(it.length<=8000)text=it},label={Text("Özgün saha raporu")},modifier=Modifier.fillMaxWidth(),minLines=3,enabled=!busy)
                     Row { listOf("tr","el","en").forEach { code -> FilterChip(selected=language==code,onClick={language=code},label={Text(code.uppercase())},modifier=Modifier.padding(end=8.dp)) } }
-                    Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                    if(!hostedTextDemo) Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                         if(!recorder.isRecording) Button(enabled=!busy,onClick={
                             if(context.checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED) {
                                 try { recorder.start(scope);recordingSeconds=0;message="Ses kaydı başladı. En fazla 30 saniye." }
@@ -101,10 +102,11 @@ fun FieldScreen(app:KomsuApplication) {
                         }
                         if(capturedAudio!=null && !recorder.isRecording) TextButton(onClick={capturedAudio=null}) { Text("Sesi kaldır") }
                     }
+                    if(hostedTextDemo) Text("Bu demoda metin raporlarını kullanın.",style=MaterialTheme.typography.bodySmall)
                     capturedAudio?.let { Text("WAV hazır · ${it.durationMs/1000.0} sn · ${it.wav.size/1024} KiB",style=MaterialTheme.typography.bodySmall) }
                     Button(enabled=text.isNotBlank() && tenant.isNotEmpty() && !busy && !recorder.isRecording,onClick={
                         busy=true
-                        scope.launch { try { repository.create(text,language,tenant,capturedAudio);text="";capturedAudio=null;message="Rapor ve varsa sesi telefona kaydedildi. Sunucuya ulaşana kadar kuyrukta tutulur." } catch(_:Exception) { message="Rapor kaydedilemedi. Metni ve sesi koruyup yeniden deneyin." } finally { busy=false } }
+                        scope.launch { try { repository.create(text,language,tenant,if(hostedTextDemo)null else capturedAudio);text="";capturedAudio=null;message="Rapor ve varsa sesi telefona kaydedildi. Sunucuya ulaşana kadar kuyrukta tutulur." } catch(_:Exception) { message="Rapor kaydedilemedi. Metni ve sesi koruyup yeniden deneyin." } finally { busy=false } }
                     },modifier=Modifier.fillMaxWidth()) { Text("Telefona kaydet ve sıraya al") }
                     if(app.sessions.needsLogin() && tenant.isNotEmpty()) Text("Oturum yenilenmeli. Çevrimdışı kayıtlar korunuyor; Bağlantı bölümünden yeniden giriş yapın.");Text("${reports.count { it.syncStatus in setOf("QUEUED","SYNCING") }} rapor gönderim bekliyor · ${reports.count { it.syncStatus=="CONFLICT" }} çakışma");TextButton(onClick={SyncWorker.schedule(app);message="Bağlantı uygunsa kuyruk yeniden denenecek."}) { Text("Senkronizasyonu yeniden dene") };Spacer(Modifier.height(16.dp));Text("Kalıcı rapor kuyruğu",style=MaterialTheme.typography.titleMedium)
                     val audios by remember(tenant) { app.database.audio().observe(tenant) }.collectAsStateWithLifecycle(emptyList())
